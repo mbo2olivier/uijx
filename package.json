@@ -1,0 +1,30 @@
+{
+  "name": "uijx",
+  "version": "0.0.1",
+  "description": "A toolkit for building reactive web client app from your favorite backend template engine",
+  "main": "uijx.ts",
+  "repository": "https://github.com/mbo2olivier/uijx.git",
+  "author": "Olivier M. Mukadi",
+  "license": "MIT",
+  "keywords": [
+    "SPA",
+    "single page application",
+    "reactive app",
+    "rich internet application",
+    "js",
+    "javascript"
+  ],
+  "scripts": {
+    "dev": "parcel index.html"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "parcel-bundler": "^1.12.3",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "axios": "^0.19.0"
+  }
+}
