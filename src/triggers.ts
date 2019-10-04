@@ -10,6 +10,7 @@ import KEYUP from './triggers/keyup';
 import KEYDOWN from './triggers/keydown';
 import CHECKED from './triggers/checked';
 import UNCHECKED from './triggers/unchecked';
+import MUTATED from './triggers/mutated';
 
 export default {
     LINK,
@@ -24,4 +25,5 @@ export default {
     KEYDOWN,
     CHECKED,
     UNCHECKED,
+    MUTATED,
 }

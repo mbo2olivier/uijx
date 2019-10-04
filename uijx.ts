@@ -33,6 +33,7 @@ function uijx(id:string):Uijx {
     u.registerTrigger(Triggers.KEYDOWN);
     u.registerTrigger(Triggers.CHECKED);
     u.registerTrigger(Triggers.UNCHECKED);
+    u.registerTrigger(Triggers.MUTATED);
 
     //register modifiers
     u.registerModifier(Modifiers.FUNC);
