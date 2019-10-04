@@ -2,9 +2,14 @@ import { Uijx } from '../core';
 
 const REPLACE = {
     name: "REPLACE",
-    change(data:string,target:Element, targetedAttrib:string|null,$:Uijx):void {
-        target.innerHTML = data;
-        $.connect(target);
+    change(data:string,target:Element, targetedAttrib:string|null,mutationParams:Array<string|null>=[],$:Uijx):void {
+        if(targetedAttrib !== null) {
+            target.setAttribute(targetedAttrib,data);
+        }else {
+            target.innerHTML = data;
+            $.connect(target);
+        }
+        $.dispatch('mutated', target, {mutation: 'REPLACE', data: data, attrib: targetedAttrib});
     }
 }
 

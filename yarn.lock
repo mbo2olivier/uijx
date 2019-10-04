@@ -513,6 +513,13 @@
     "@babel/helper-regex" "^7.4.4"
     regexpu-core "^4.5.4"
 
+"@babel/polyfill@^7.6.0":
+  version "7.6.0"
+  resolved "https://registry.yarnpkg.com/@babel/polyfill/-/polyfill-7.6.0.tgz#6d89203f8b6cd323e8d946e47774ea35dc0619cc"
+  dependencies:
+    core-js "^2.6.5"
+    regenerator-runtime "^0.13.2"
+
 "@babel/preset-env@^7.0.0 <7.4.0":
   version "7.3.4"
   resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.3.4.tgz#887cf38b6d23c82f19b5135298bdb160062e33e1"
@@ -1739,7 +1746,7 @@ copy-descriptor@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
 
-core-js@^2.4.0, core-js@^2.5.0:
+core-js@^2.4.0, core-js@^2.5.0, core-js@^2.6.5:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.9.tgz#6b4b214620c834152e179323727fc19741b084f2"
 
@@ -4178,6 +4185,10 @@ regenerator-runtime@^0.11.0:
 regenerator-runtime@^0.12.0:
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.12.1.tgz#fa1a71544764c036f8c49b13a08b2594c9f8a0de"
+
+regenerator-runtime@^0.13.2:
+  version "0.13.3"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.3.tgz#7cf6a77d8f5c6f60eb73c5fc1955b2ceb01e6bf5"
 
 regenerator-transform@^0.10.0:
   version "0.10.1"

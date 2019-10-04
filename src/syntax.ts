@@ -2,8 +2,11 @@ export class DataSourceParseResult{
     public selector?:string|undefined;
     public attribute?:string|null;
     public computed:string|null=null;
+    public isRawData:boolean = false;
 
     public compute():void {
+        if(this.isRawData)
+            return;
         if(this.selector) {
             let e = document.querySelector(this.selector);
             this.computed = e != null ? (this.attribute ? e.getAttribute(this.attribute) : e.innerHTML) : '';
@@ -84,7 +87,7 @@ export function parseMutation(input:string):MutationParseResult {
         target: target,
         params: []
     };
-    if(input.indexOf(':') > 0) {
+    if(input.indexOf(':') >= 0) {
         let parts = input.split(':');
         target = (parts)[0];
         let matches = /^(\w+)(\((.*)\))?$/.exec(parts[1]);
@@ -98,13 +101,22 @@ export function parseMutation(input:string):MutationParseResult {
             throw new Error('Error parsing mutation command :' + input);
         }
     }
-    let ds = parseDataSource(target,true);
-    if(typeof ds.selector == 'undefined') {
-        throw new Error('Error parsing mutation command :' + input);
+    
+    target = target.replace(/^\s+|\s+$/g, '');
+    let matches = /^\((.*)\)(\[(\w*\-*)\])?$/.exec(target);
+    if(matches) {
+        res.target = matches[1];
+        res.attribute = matches[3];
+    }else{
+        res.target = target;
     }
-    let e = document.querySelector(ds.selector);
-    res.target = e == null ? ds.selector : e;
-    res.attribute = ds.attribute;
+    if(res.target !== '') {
+        let e = document.querySelector(res.target);
+        if(e == null) {
+            throw new Error('cannot find element targeted by: ' + res.target);
+        }
+        res.target = e;
+    }
     return res;
 }
 
@@ -118,8 +130,9 @@ export function parseDataSource(input:string, compute:boolean=true):DataSourcePa
         res.selector = matches[1];
         res.attribute = matches[3];
     }else{
-        res.selector = input;
+        res.isRawData = true;
     }
+
     if(compute) {
         res.compute();
     }

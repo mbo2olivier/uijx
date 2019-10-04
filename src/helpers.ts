@@ -35,3 +35,13 @@ export function invoke(fname:string, context:any,...args:any[]):any {
     }
     return context[func].apply(context, args);
 }
+
+export function getEventDetail(e:CustomEvent, prop:string):any {
+    if(typeof e.detail[prop] !== 'undefined') {
+        return e.detail[prop];
+    }
+    else if(typeof e.detail.detail !== 'undefined' && e.detail.detail[prop] !== 'undefined') {
+        return e.detail.detail[prop];
+    }
+    return undefined;
+}

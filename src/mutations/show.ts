@@ -1,12 +1,12 @@
 import { Uijx } from '../core';
 
-const REPTEXT = {
-    name: "REPTEXT",
+const SHOW = {
+    name: "SHOW",
     change(data:string,target:Element, targetedAttrib:string|null,mutationParams:Array<string|null>=[],$:Uijx):void {
         let t = <HTMLElement>target;
-        t.innerText = data;
-        $.dispatch('mutated', target, {mutation: 'REPTEXT', data: data, attrib: targetedAttrib});
+        t.style.display = 'block';
+        $.dispatch('mutated', target, {mutation: 'SHOW', data: data, attrib: targetedAttrib});
     }
 }
 
-export default REPTEXT;
+export default SHOW;

@@ -51,11 +51,11 @@ export class Uijx {
         return this;
     }
 
-    public mutate(mutation:string, data:string,target:Element|string, targetedAttrib:string|undefined|null): void {
+    public mutate(mutation:string, data:string,target:Element|string, targetedAttrib:string|undefined|null,mutationParams:Array<string|null>=[]): void {
         if(this.mutations[mutation]) {
             let t = typeof target === 'string' ? this.root.querySelector(target): target;
             if(t !== null)
-                this.mutations[mutation].change(data, t, targetedAttrib || null, this);
+                this.mutations[mutation].change(data, t, targetedAttrib || null, mutationParams,this);
             else
                 throw new Error('cannot find element matching with selector : ' + target);
         }else
@@ -66,12 +66,14 @@ export class Uijx {
         let e = el as HTMLElement;
         let m = getData(e,trigger + '-mutation') || "";
         let mres = parseMutation(m);
+        mres.target = mres.target === '' ? el : mres.target;
+        let mparams = mres.params.map((v) => v.computed);
 
-        let t = new TriggerInfo(this,trigger, el, mres.target, mres.attribute,mres.mutation);
+        let t = new TriggerInfo(this,trigger, el, mres.target, mres.attribute,mres.mutation,mparams);
         t.before = getData(e,trigger + '-before');
         t.after = getData(e,trigger + '-after');
         t.error = getData(e,trigger + '-error');
-        t.rawData = getData(e,trigger) || "";
+        t.rawData = getData(e,'uijx-' + trigger) || "";
         return t;
     }
 
@@ -87,9 +89,22 @@ export class Uijx {
         }, input);
     }
 
-    public dispatch(e:string, el:Element,data:CustomEventInit<{}> | undefined):void {
-        let ev = new CustomEvent('uijx-' + e,data);
-        el.dispatchEvent(ev);
+    public dispatch(e:string, el:Element|null,d:{}|undefined = undefined):void {
+        let data:CustomEventInit<{}> = { detail: d };
+        data.bubbles = false;
+        let ev:CustomEvent;
+        let ename = 'uijx-' + e;
+        if ( typeof window.CustomEvent === "function" ) {
+            ev = new CustomEvent(ename,data);
+        }
+        else {
+            ev = document.createEvent('CustomEvent');
+            ev.initCustomEvent(ename, false, false, data );
+        }
+        if(el === null)
+            document.dispatchEvent(ev);
+        else
+            el.dispatchEvent(ev);
     }
 }
 
@@ -103,11 +118,12 @@ export class TriggerInfo {
     public rawData:string;
     private modifiers:ModifierData[];
     public mutation:string;
+    public mutationParams:Array<string|null>;
     public target: Element|string;
     public targetedAttribute: string | undefined | null;
     public engine: Uijx;
 
-    constructor(engine:Uijx, t:string, slot:Element, target: Element|string, targetedAttrib:string|null = null, mutation:string="REPLACE") {
+    constructor(engine:Uijx, t:string, slot:Element, target: Element|string, targetedAttrib:string|null = null, mutation:string="REPLACE", mutationParams:Array<string|null>=[]) {
         this.trigger = t;
         this.slot = slot;
         this.target = target;
@@ -116,6 +132,7 @@ export class TriggerInfo {
         this.targetedAttribute = targetedAttrib;
         this.modifiers = [];
         this.rawData = "";
+        this.mutationParams = mutationParams;
     }
 
     public parseData():void {
@@ -144,7 +161,7 @@ export interface Trigger {
 
 export interface Mutation {
     name:string;
-    change(data:string,target:Element, targetedAttrib:string|null,$:Uijx):void
+    change(data:string,target:Element, targetedAttrib:string|null,mutationParams:Array<string|null>,$:Uijx):void
 }
 
 export interface Modifier {
