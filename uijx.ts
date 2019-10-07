@@ -31,6 +31,8 @@ function uijx(id:string):Uijx {
     u.registerTrigger(Triggers.FOCUS);
     u.registerTrigger(Triggers.KEYUP);
     u.registerTrigger(Triggers.KEYDOWN);
+    u.registerTrigger(Triggers.CHECKED);
+    u.registerTrigger(Triggers.UNCHECKED);
 
     //register modifiers
     u.registerModifier(Modifiers.FUNC);
