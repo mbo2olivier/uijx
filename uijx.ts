@@ -29,6 +29,8 @@ function uijx(id:string):Uijx {
     u.registerTrigger(Triggers.CHANGE);
     u.registerTrigger(Triggers.BLUR);
     u.registerTrigger(Triggers.FOCUS);
+    u.registerTrigger(Triggers.KEYUP);
+    u.registerTrigger(Triggers.KEYDOWN);
 
     //register modifiers
     u.registerModifier(Modifiers.FUNC);

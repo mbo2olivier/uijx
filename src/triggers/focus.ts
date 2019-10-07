@@ -8,7 +8,6 @@ function handler(e:Event) {
         return;
     let target= <HTMLInputElement>e.currentTarget;
 
-    e.preventDefault();
     let info = $.getInfo('focus',target);
 
     if(typeof info.before === 'string') {

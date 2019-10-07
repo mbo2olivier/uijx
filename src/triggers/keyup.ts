@@ -8,7 +8,7 @@ function handler(e:Event) {
         return;
     let target= <HTMLInputElement>e.currentTarget;
 
-    let info = $.getInfo('change',target);
+    let info = $.getInfo('keyup',target);
 
     if(typeof info.before === 'string') {
         invoke(info.before,window, target);
@@ -23,23 +23,23 @@ function handler(e:Event) {
     }
 }
 
-const change = {
-    name: 'change',
+const keyup = {
+    name: 'keyup',
 
     connect(el:Element, uijx:Uijx):void {
         $ = uijx;
-        var slots = el.querySelectorAll("[data-uijx-change]");
+        var slots = el.querySelectorAll("[data-uijx-keyup]");
         for(let i=0; i< slots.length;i++) {
-            slots[i].addEventListener('change', handler);
+            slots[i].addEventListener('keyup', handler);
         }
     },
 
     disconnect(el:Element, $:Uijx):void {
-        var slots = el.querySelectorAll("[data-uijx-change]");
+        var slots = el.querySelectorAll("[data-uijx-keyup]");
         for(let i=0; i< slots.length;i++) {
-            slots[i].removeEventListener('change', handler);
+            slots[i].removeEventListener('keyup', handler);
         }
     }
 }
 
-export default change;
+export default keyup;
