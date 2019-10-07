@@ -73,7 +73,8 @@ export class Uijx {
         t.before = getData(e,trigger + '-before');
         t.after = getData(e,trigger + '-after');
         t.error = getData(e,trigger + '-error');
-        t.rawData = getData(e,'uijx-' + trigger) || "";
+        t.param = getData(e,'uijx-' + trigger) || "";
+        t.rawData = getData(e,trigger + '-source') || t.param;
         return t;
     }
 
@@ -116,6 +117,7 @@ export class TriggerInfo {
     public error:string|undefined|null;
     private data:string|undefined|null;
     public rawData:string;
+    public param:string;
     private modifiers:ModifierData[];
     public mutation:string;
     public mutationParams:Array<string|null>;
@@ -132,6 +134,7 @@ export class TriggerInfo {
         this.targetedAttribute = targetedAttrib;
         this.modifiers = [];
         this.rawData = "";
+        this.param = "";
         this.mutationParams = mutationParams;
     }
 

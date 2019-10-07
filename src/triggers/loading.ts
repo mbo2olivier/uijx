@@ -14,13 +14,12 @@ function handler(e:Event) {
             invoke(info.before,window, target);
         }
 
-        info.parseData();
-        let id = $.modify(info.getData(), info.getModifiers());
-
         let dtarget = getEventDetail(c,'target');
         let dloading = getEventDetail(c,'loading');
-        if(id === dtarget.id && dloading === true) {
-            $.mutate(info.mutation,'loading',info.target, info.targetedAttribute,info.mutationParams);
+        if(info.param === dtarget.id && dloading === true) {
+            info.parseData();
+            let data = $.modify(info.getData(), info.getModifiers());
+            $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
             if(typeof info.after === 'string') {
                 invoke(info.after,window, target);
             }
