@@ -69,16 +69,16 @@ const submit = {
 
     connect(el:Element, uijx:Uijx):void {
         $ = uijx;
-        var targets = el.querySelectorAll("form[data-uijx-submit]");
-        for(let i=0; i< targets.length;i++) {
-            targets[i].addEventListener('submit', handler);
+        var slots = el.querySelectorAll("form[data-uijx-submit]");
+        for(let i=0; i< slots.length;i++) {
+            slots[i].addEventListener('submit', handler);
         }
     },
 
     disconnect(el:Element, $:Uijx):void {
-        var targets = el.querySelectorAll("form[data-uijx-submit]");
-        for(let i=0; i< targets.length;i++) {
-            targets[i].removeEventListener('submit', handler);
+        var slots = el.querySelectorAll("form[data-uijx-submit]");
+        for(let i=0; i< slots.length;i++) {
+            slots[i].removeEventListener('submit', handler);
         }
     }
 }

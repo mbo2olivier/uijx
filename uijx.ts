@@ -25,9 +25,14 @@ function uijx(id:string):Uijx {
     u.registerTrigger(Triggers.SUBMIT);
     u.registerTrigger(Triggers.LOADING);
     u.registerTrigger(Triggers.LOADED);
+    u.registerTrigger(Triggers.CLICK);
+    u.registerTrigger(Triggers.CHANGE);
+    u.registerTrigger(Triggers.BLUR);
+    u.registerTrigger(Triggers.FOCUS);
 
     //register modifiers
     u.registerModifier(Modifiers.FUNC);
+    u.registerModifier(Modifiers.BIND);
 
     //prepare and return instance;
     u.connect(u.getRoot());

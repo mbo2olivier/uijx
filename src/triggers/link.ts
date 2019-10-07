@@ -46,16 +46,16 @@ const link = {
 
     connect(el:Element, uijx:Uijx):void {
         $ = uijx;
-        var targets = el.querySelectorAll("a[data-uijx-link]");
-        for(let i=0; i< targets.length;i++) {
-            targets[i].addEventListener('click', handler);
+        var slots = el.querySelectorAll("a[data-uijx-link]");
+        for(let i=0; i< slots.length;i++) {
+            slots[i].addEventListener('click', handler);
         }
     },
 
     disconnect(el:Element, $:Uijx):void {
-        var targets = el.querySelectorAll("a[data-uijx-link]");
-        for(let i=0; i< targets.length;i++) {
-            targets[i].removeEventListener('click', handler);
+        var slots = el.querySelectorAll("a[data-uijx-link]");
+        for(let i=0; i< slots.length;i++) {
+            slots[i].removeEventListener('click', handler);
         }
     }
 }

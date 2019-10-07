@@ -1,3 +1,5 @@
+import { getData } from "./helpers";
+
 export class DataSourceParseResult{
     public selector?:string|undefined;
     public attribute?:string|null;
@@ -8,8 +10,33 @@ export class DataSourceParseResult{
         if(this.isRawData)
             return;
         if(this.selector) {
-            let e = document.querySelector(this.selector);
-            this.computed = e != null ? (this.attribute ? e.getAttribute(this.attribute) : e.innerHTML) : '';
+            let e = <HTMLElement> document.querySelector(this.selector);
+            if(e !== null) {
+                if(this.attribute) {
+                    this.attribute = this.attribute.trim();
+                    if(this.attribute === 'value') {
+                        if(e.nodeName === 'INPUT' || e.nodeName === 'SELECT' || e.nodeName === 'TEXTAREA') {
+                            let input = <HTMLInputElement> e;
+                            this.computed = input.value;
+                        }
+                        else {
+                            this.computed = null;
+                        }
+                    }
+                    else if(this.attribute.indexOf('data-') == 0) {
+                        this.computed = getData(e,this.attribute.substr(5)) || null;
+                    }
+                    else {
+                        this.computed = e.getAttribute(this.attribute);
+                    }
+                }else
+                    this.computed = e.innerHTML;
+            }else{
+                this.computed = '';
+            }     
+        }
+        else {
+            this.computed = '';
         }
     }
 }
@@ -125,7 +152,7 @@ export function parseDataSource(input:string, compute:boolean=true):DataSourcePa
     let res = new DataSourceParseResult();
     res.computed = input;
     
-    let matches = /^\((.*)\)(\[(\w*\-*)\])?$/.exec(input);
+    let matches = /^\((.*)\)(\[([\w\-]*)\])?$/.exec(input);
     if(matches) {
         res.selector = matches[1];
         res.attribute = matches[3];
