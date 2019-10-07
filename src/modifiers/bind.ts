@@ -1,4 +1,4 @@
-import { template } from 'dot';
+import * as Sqrl from 'squirrelly';
 
 export default {
     name: 'BIND',
@@ -14,8 +14,7 @@ export default {
         if(el === null)
             throw new Error('cannot find template element with id: ' + params[0]);
         
-        let fn = template(el.innerText);
         let data = typeof input === 'object' ? input : JSON.parse(input);
-        return fn(data);
+        return Sqrl.Render(el.innerHTML, data);
     }
 }
