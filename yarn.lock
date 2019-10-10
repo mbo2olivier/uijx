@@ -4573,9 +4573,9 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
 
-squirrelly@^7.6.0:
-  version "7.6.0"
-  resolved "https://registry.yarnpkg.com/squirrelly/-/squirrelly-7.6.0.tgz#f26795076574c43fa2fad7107979fe858aa798e1"
+squirrelly@7.7.0:
+  version "7.7.0"
+  resolved "https://registry.yarnpkg.com/squirrelly/-/squirrelly-7.7.0.tgz#9d83cc166db138d1154693297afc800a13da097e"
 
 sshpk@^1.7.0:
   version "1.16.1"

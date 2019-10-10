@@ -15,7 +15,8 @@
     "javascript"
   ],
   "scripts": {
-    "dev": "parcel index.html"
+    "dev": "parcel index.html",
+    "build": "parcel build uijx.ts"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -28,6 +29,6 @@
     "@types/axios": "^0.14.0",
     "@types/squirrelly": "^7.1.0",
     "axios": "^0.19.0",
-    "squirrelly": "^7.6.0"
+    "squirrelly": "7.7.0"
   }
 }
