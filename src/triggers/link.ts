@@ -4,13 +4,13 @@ import { invoke } from '../helpers';
 
 let $:Uijx;
 
-function handler(e:Event) {
+async function handler(e:Event) {
     if(e.currentTarget == null)
         return;
     let target= <Element>e.currentTarget;
 
     e.preventDefault();
-    let info = $.getInfo('link',target);
+    let info = await $.getInfo('link',target);
 
     if(typeof info.before === 'string') {
         invoke(info.before,window, target);
@@ -21,24 +21,22 @@ function handler(e:Event) {
         throw new Error('missing href attribute on ' + target);
     }
     $.dispatch('loading', null, {loading: true, target: info.target});
-    axios
-        .get(href)
-        .then((resp) => {
-            info.parseData();
-            let r = $.modify(resp.data, info.getModifiers());
-            $.mutate(info.mutation,r,info.target, info.targetedAttribute,info.mutationParams);
-            $.dispatch('loading', null, {loading: false, target: info.target});
-            if(typeof info.after === 'string') {
-                invoke(info.after,window, target,r);
-            }
-        })
-        .catch(function (error) {
-            $.dispatch('loading', null, {loading: false, target: info.target });
-            if(typeof info.error === 'string') {
-                invoke(info.error,window, target,error);
-            }
-        })
-    ;
+    
+    try {
+        let resp = await axios.get(href);
+        await info.parseData();
+        let r = $.modify(resp.data, info.getModifiers());
+        $.mutate(info.mutation,r,info.target, info.targetedAttribute,info.mutationParams);
+        $.dispatch('loading', null, {loading: false, target: info.target});
+        if(typeof info.after === 'string') {
+            invoke(info.after,window, target,r);
+        }
+    }catch(error) {
+        $.dispatch('loading', null, {loading: false, target: info.target });
+        if(typeof info.error === 'string') {
+            invoke(info.error,window, target,error);
+        }
+    }
 }
 
 const link = {

@@ -3,19 +3,19 @@ import { invoke } from '../helpers';
 
 let $:Uijx;
 
-function handler(e:Event) {
+async function handler(e:Event) {
     if(e.currentTarget == null)
         return;
     let target= <Element>e.currentTarget;
 
     e.preventDefault();
-    let info = $.getInfo('click',target);
+    let info = await $.getInfo('click',target);
 
     if(typeof info.before === 'string') {
         invoke(info.before,window, target);
     }
 
-    info.parseData();
+    await info.parseData();
     let data = $.modify(info.getData(), info.getModifiers());
     $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
     if(typeof info.after === 'string') {

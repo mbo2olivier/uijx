@@ -62,10 +62,10 @@ export class Uijx {
             throw new Error('cannot find mutation named :' + mutation);
     }
 
-    public getInfo(trigger:string, el:Element): TriggerInfo {
+    public async getInfo(trigger:string, el:Element): Promise<TriggerInfo> {
         let e = el as HTMLElement;
         let m = getData(e,trigger + '-mutation') || "";
-        let mres = parseMutation(m);
+        let mres = await parseMutation(m);
         mres.target = mres.target === '' ? el : mres.target;
         let mparams = mres.params.map((v) => v.computed);
 
@@ -138,8 +138,8 @@ export class TriggerInfo {
         this.mutationParams = mutationParams;
     }
 
-    public parseData():void {
-        let res = parseAction(this.rawData,true);
+    public async parseData():Promise<void> {
+        let res = await parseAction(this.rawData,true);
         this.data = res.data.computed;
         res.modifiers.forEach(m => {
             this.modifiers.push({ name: m.modifier, params : m.params.map(p => p.computed) });

@@ -3,12 +3,12 @@ import { invoke, getEventDetail } from '../helpers';
 
 let $:Uijx;
 
-function handler(e:Event) {
+async function handler(e:Event) {
     var slots = $.getRoot().querySelectorAll("[data-uijx-loading]");
     let c = <CustomEvent>e;
     for(let i=0; i< slots.length;i++) {
         let target = slots[i];
-        let info = $.getInfo('loading',target);
+        let info = await $.getInfo('loading',target);
 
         if(typeof info.before === 'string') {
             invoke(info.before,window, target);
@@ -17,7 +17,7 @@ function handler(e:Event) {
         let dtarget = getEventDetail(c,'target');
         let dloading = getEventDetail(c,'loading');
         if(info.param === dtarget.id && dloading === true) {
-            info.parseData();
+            await info.parseData();
             let data = $.modify(info.getData(), info.getModifiers());
             $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
             if(typeof info.after === 'string') {

@@ -1,15 +1,21 @@
 import { getData } from "./helpers";
+import axios from "axios";
 
 export class DataSourceParseResult{
     public selector?:string|undefined;
     public attribute?:string|null;
     public computed:string|null=null;
     public isRawData:boolean = false;
+    public resource:string|undefined;
 
-    public compute():void {
+    public async compute():Promise<void> {
         if(this.isRawData)
             return;
-        if(this.selector) {
+        if(this.resource) {
+            var resp = await axios.get(this.resource);
+            this.computed = <string> resp.data;
+        }
+        else if(this.selector) {
             let e = <HTMLElement> document.querySelector(this.selector);
             if(e !== null) {
                 if(this.attribute) {
@@ -63,23 +69,28 @@ export interface ActionParseResult {
     modifiers: ModifierParseResult[]
 }
 
-export function parseAction(input:string, compute:boolean=true):ActionParseResult {
+export async function  parseAction(input:string, compute:boolean=true):Promise<ActionParseResult> {
     input = input.replace(/^\s+|\s+$/g, '');
     let res:ActionParseResult;
     if(input.indexOf('->') > 0) {
         let matches = /^(\((.*)\)(\[(.*)\])?)(?:\s*)->(?:\s*):(.*)+$/.exec(input);
         if(matches) {
             res = {
-                data: parseDataSource(matches[1], compute),
-                modifiers: matches[5].split(':').map(m => parseModifier(m,compute))
+                data: await parseDataSource(matches[1], compute),
+                modifiers: []
             };
+            
+            for(const m of matches[5].split(':')) {
+                let mod = await parseModifier(m,compute);
+                res.modifiers.push(mod);
+            }
         }
         else {
             throw new Error('Error parsing action command :' + input);
         }
     }else{
         res = {
-            data: parseDataSource(input, compute),
+            data: await parseDataSource(input, compute),
             modifiers: []
         }
     }
@@ -87,7 +98,7 @@ export function parseAction(input:string, compute:boolean=true):ActionParseResul
     return res;
 }
 
-export function parseModifier(input:string, compute:boolean = true): ModifierParseResult {
+export async function parseModifier(input:string, compute:boolean = true): Promise<ModifierParseResult> {
     input = input.replace(/^\s+|\s+$/g, '');
     let res:ModifierParseResult;
     let matches = /^(\w+)(\((.*)\))?$/.exec(input);
@@ -98,7 +109,10 @@ export function parseModifier(input:string, compute:boolean = true): ModifierPar
         };
         if(matches[3]) {
             let params = matches[3].split(',');
-            res.params = params.map((p) => parseDataSource(p,true),compute);
+            for(const p of params) {
+                let c = await parseDataSource(p,compute);
+                res.params.push(c);
+            }
         }
         return res;
     }else{
@@ -106,7 +120,7 @@ export function parseModifier(input:string, compute:boolean = true): ModifierPar
     }
 }
 
-export function parseMutation(input:string):MutationParseResult {
+export async function parseMutation(input:string):Promise<MutationParseResult> {
     input = input.replace(/^\s+|\s+$/g, '');
     let target = input;
     let res:MutationParseResult = {
@@ -122,7 +136,10 @@ export function parseMutation(input:string):MutationParseResult {
             res.mutation = matches[1].toUpperCase();
             if(matches[3]) {
                 let params = matches[3].split(',');
-                res.params = params.map((p) => parseDataSource(p,true),true);
+                for(const p of params) {
+                    let c = await parseDataSource(p,true);
+                    res.params.push(c);
+                }
             }
         }else{
             throw new Error('Error parsing mutation command :' + input);
@@ -147,21 +164,25 @@ export function parseMutation(input:string):MutationParseResult {
     return res;
 }
 
-export function parseDataSource(input:string, compute:boolean=true):DataSourceParseResult{
+export async function parseDataSource(input:string, compute:boolean=true):Promise<DataSourceParseResult>{
     input = input.replace(/^\s+|\s+$/g, '');
     let res = new DataSourceParseResult();
     res.computed = input;
     
-    let matches = /^\((.*)\)(\[([\w\-]*)\])?$/.exec(input);
+    let matches = /^\((.*)\)(\[(.*)\])?$/.exec(input);
     if(matches) {
-        res.selector = matches[1];
-        res.attribute = matches[3];
+        if(matches[1] === '_http') {
+            res.resource = matches[3];
+        }else {
+            res.selector = matches[1];
+            res.attribute = matches[3];
+        }
     }else{
         res.isRawData = true;
     }
 
     if(compute) {
-        res.compute();
+        await res.compute();
     }
     return res;
 }

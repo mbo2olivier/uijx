@@ -3,13 +3,13 @@ import { invoke, getEventDetail, getData } from '../helpers';
 
 let $:Uijx;
 
-function handler(e:Event) {
+async function handler(e:Event) {
     var slots = $.getRoot().querySelectorAll("[data-uijx-mutated]");
     let c = <CustomEvent>e;
     let target = <HTMLElement>e.target;
         
     for(let i=0; i< slots.length;i++) {
-        let info = $.getInfo('mutated',slots[i]);
+        let info = await $.getInfo('mutated',slots[i]);
 
         let id = info.param;
         if(info.param.indexOf(':') > 0) {
@@ -26,7 +26,7 @@ function handler(e:Event) {
             if(typeof info.before === 'string') {
                 invoke(info.before,window, target);
             }
-            info.parseData();
+            await info.parseData();
             let data = $.modify(info.getData(), info.getModifiers());
             $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
             if(typeof info.after === 'string') {

@@ -3,18 +3,18 @@ import { invoke } from '../helpers';
 
 let $:Uijx;
 
-function handler(e:Event) {
+async function handler(e:Event) {
     if(e.currentTarget == null)
         return;
     let target= <HTMLInputElement>e.currentTarget;
 
-    let info = $.getInfo('keyup',target);
+    let info = await $.getInfo('keyup',target);
 
     if(typeof info.before === 'string') {
         invoke(info.before,window, target);
     }
 
-    info.parseData();
+    await info.parseData();
     let data = info.getData() == '' ? target.value : info.getData();
     data = $.modify(data, info.getModifiers());
     $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
