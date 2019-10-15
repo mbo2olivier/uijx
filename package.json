@@ -1,6 +1,6 @@
 {
   "name": "uijx",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A toolkit for building reactive web client app from your favorite backend template engine",
   "main": "uijx.ts",
   "repository": "https://github.com/mbo2olivier/uijx.git",
