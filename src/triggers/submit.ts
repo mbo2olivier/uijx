@@ -1,5 +1,5 @@
 import { Uijx } from '../core';
-import axios from 'axios';
+import axios, { AxiosPromise } from 'axios';
 import { invoke } from '../helpers';
 
 let $:Uijx;
@@ -21,14 +21,23 @@ async function handler(e:Event) {
     $.dispatch('loading', null, {loading: true, target: info.target});
     let data = new FormData(form);
     let ctype = form.getAttribute('enctype') || 'application/x-www-form-urlencoded';
+    let method = getMethod(form);
     
     try {
-        let resp = await axios({
-            method: getMethod(form),
-            url: url,
-            data: data,
-            headers: {'Content-Type': ctype }
-        });
+        let resp;
+        if(method === 'GET') {
+            resp = await axios.get(url, {
+                params: serialize(data)
+            });
+        }else {
+            resp = await axios({
+                method: method,
+                url: url,
+                data: data,
+                headers: {'Content-Type': ctype }
+            });
+        }
+
         await info.parseData();
         let r = $.modify(resp.data, info.getModifiers());
         $.mutate(info.mutation,r,info.target, info.targetedAttribute,info.mutationParams);
@@ -60,6 +69,14 @@ function getMethod(f:HTMLFormElement):"get" | "GET" | "delete" | "DELETE" | "hea
         default:
             return 'POST';
     }
+}
+
+function serialize(f:FormData):any {
+    let data: {[key: string]:string} = {};
+    f.forEach(function(value, key){
+        data[key] = <string>value;
+    });
+    return data;
 }
 
 const submit = {
