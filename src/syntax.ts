@@ -128,7 +128,19 @@ export async function parseMutation(input:string):Promise<MutationParseResult> {
         target: target,
         params: []
     };
-    if(input.indexOf(':') >= 0) {
+    var fnMatch = /^fn\((.*)\)$/.exec(input);
+    if(fnMatch) {
+        res.mutation = 'CALLABLE';
+        target = '';
+        if(fnMatch[1]) {
+            let params = fnMatch[1].split(',');
+            for(const p of params) {
+                let c = await parseDataSource(p,true);
+                res.params.push(c);
+            }
+        }
+    }
+    else if(input.indexOf(':') >= 0) {
         let parts = input.split(':');
         target = (parts)[0];
         let matches = /^(\w+)(\((.*)\))?$/.exec(parts[1]);

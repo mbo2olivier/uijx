@@ -9,6 +9,7 @@ import TOGGLE from './mutations/toggle';
 import TOGGLECLASS from './mutations/toggleClass';
 import REPTEXT from './mutations/replaceText';
 import FUNC from './mutations/func';
+import CALLABLE from './mutations/callable';
 
 export default {
     REPLACE,
@@ -22,4 +23,5 @@ export default {
     TOGGLE,
     TOGGLECLASS,
     FUNC,
+    CALLABLE,
 }

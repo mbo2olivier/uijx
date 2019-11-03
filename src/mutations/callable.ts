@@ -1,11 +1,11 @@
 import { Uijx } from '../core';
 import { invoke } from '../helpers';
 
-const FUNC = {
-    name: "FUNC",
+const CALLABLE = {
+    name: "CALLABLE",
     change(data:string,target:Element, targetedAttrib:string|null,params:Array<string|null>=[],$:Uijx):void {
         if(typeof params === 'undefined') {
-            throw new Error('FUNC mutation require to provide at least one parameter');
+            throw new Error('CALLABLE mutation require to provide at least one parameter');
         }
         if(typeof params[0] !== 'string') {
             throw new Error('Error while parsing custom mutation function name');
@@ -17,4 +17,4 @@ const FUNC = {
     }
 }
 
-export default FUNC;
+export default CALLABLE;

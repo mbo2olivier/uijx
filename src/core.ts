@@ -66,7 +66,10 @@ export class Uijx {
         let e = el as HTMLElement;
         let m = getData(e,trigger + '-mutation') || "";
         let mres = await parseMutation(m);
-        mres.target = mres.target === '' ? el : mres.target;
+        if(mres.mutation === 'CALLABLE') {
+            mres.target = el;
+        } else
+            mres.target = mres.target === '' ? el : mres.target;
         let mparams = mres.params.map((v) => v.computed);
 
         let t = new TriggerInfo(this,trigger, el, mres.target, mres.attribute,mres.mutation,mparams);
