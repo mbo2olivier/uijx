@@ -15,7 +15,7 @@ The idea of ​​the UIjx project is to design responsive web applications dire
 
 Basic UIjx concepts:
 
-- Triggers : as its name implies, this component attached to a DOM node (called "Slot") has the role of triggering actions on specific occasions (event of the DOM, ajax response callback ...) and generating raw data from various sources.
+- Triggers : as its name implies, this component attached to a DOM node (called "Slot") has the role of triggering task on specifics occasions (event of the DOM, ajax response callback ...) and generating raw data from various sources.
 - Modifiers : This component transforms incoming data and outputs the result. Modifiers can be combined.
 - Mutations : This component represents an alteration of the DOM.
 
@@ -37,7 +37,7 @@ In the example below, when clicking on the link UIjx will issue a request to the
 ...
 <div id="app-container">
     
-    <a href="http://www.foo.bar" data-uijx-link data-link-mutation="(#target):replace">replace content</a>
+    <a href="http://www.foo.bar" data-uijx-link ="() ->-> #target:replace">replace content</a>
     <div id="target"></div>
 </div>
 ...

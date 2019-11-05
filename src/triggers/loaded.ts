@@ -1,27 +1,41 @@
 import { Uijx } from '../core';
-import { invoke, getEventDetail } from '../helpers';
+import { getEventDetail } from '../helpers';
 
 let $:Uijx;
 
 async function handler(e:Event) {
-    var slots = $.getRoot().querySelectorAll("[data-uijx-loaded]");
     let c = <CustomEvent>e;
+    var slots = $.getRoot().querySelectorAll("[data-uijx-loaded]");
+    let dtarget = getEventDetail(c,'target');
+    let dloading = getEventDetail(c,'loading');
+    let data:any = dloading;
+
     for(let i=0; i< slots.length;i++) {
-        let target = slots[i];
-        let info = await $.getInfo('loaded',target);
+        let slot = slots[i];
+        let info = await $.getInfo('loaded',slot);
 
-        if(typeof info.before === 'string') {
-            invoke(info.before,window, target);
-        }
-
-        let dtarget = getEventDetail(c,'target');
-        let dloading = getEventDetail(c,'loading');
+        
         if(info.param === dtarget.id && dloading === false) {
-            await info.parseData();
-            let data = $.modify(info.getData(), info.getModifiers());
-            $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
+            if(typeof info.before === 'string') {
+                data = $.task(info.before, slot, data) || data;
+            }
+
+            try {
+                let t = await info.getTask();
+                data = await $.task(t, slot, data);
+                if(typeof info.success === 'string') {
+                    data = $.task(info.success, slot, data);
+                }
+            }
+            catch(e) {
+                if(typeof info.error === 'string') {
+                    data = $.task(info.error, slot, e) || e;
+                }
+                else
+                    throw e;
+            }
             if(typeof info.after === 'string') {
-                invoke(info.after,window, target);
+                $.task(info.after, slot, data);
             }
         }
     }

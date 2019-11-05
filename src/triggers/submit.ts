@@ -8,18 +8,19 @@ async function handler(e:Event) {
     if(e.currentTarget == null)
         return;
     let form= <HTMLFormElement>e.currentTarget;
+    let data:any = new FormData(form);
 
     e.preventDefault();
     let info = await $.getInfo('submit',form);
 
     if(typeof info.before === 'string') {
-        invoke(info.before,window, form);
+        data = $.task(info.before, form, data) || data;
     }
 
     let url = form.getAttribute('action');
     url = url === null ?  window.location.href : url;
     $.dispatch('loading', null, {loading: true, target: info.target});
-    let data = new FormData(form);
+    
     let ctype = form.getAttribute('enctype') || 'application/x-www-form-urlencoded';
     let method = getMethod(form);
     
@@ -38,18 +39,23 @@ async function handler(e:Event) {
             });
         }
 
-        await info.parseData();
-        let r = $.modify(resp.data, info.getModifiers());
-        $.mutate(info.mutation,r,info.target, info.targetedAttribute,info.mutationParams);
+        let t = await info.getTask();
+        data = await $.task(t, form, resp.data);
         $.dispatch('loading', null, {loading: false, target: info.target});
-        if(typeof info.after === 'string') {
-            invoke(info.after,window, form,r);
+        if(typeof info.success === 'string') {
+            data = $.task(info.success, form, data);
         }
     }catch(error) {
         $.dispatch('loading', null, {loading: false, target: info.target});
         if(typeof info.error === 'string') {
-            invoke(info.error,window, form,error);
+            data = $.task(info.error, form, error) || error;
         }
+        else
+            throw e;
+    }
+
+    if(typeof info.after === 'string') {
+        $.task(info.after, form, data);
     }
 }
 

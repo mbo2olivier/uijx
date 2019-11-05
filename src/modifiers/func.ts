@@ -3,7 +3,7 @@ import { invoke } from '../helpers';
 export default {
     name: 'FUNC',
 
-    apply(input:any, params:any[]|undefined):string {
+    apply(input:any, params:any[]|undefined):any {
         if(typeof params === 'undefined') {
             throw new Error('FUNC modifier require to provide at least one parameter');
         }

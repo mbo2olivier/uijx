@@ -7,35 +7,40 @@ let $:Uijx;
 async function handler(e:Event) {
     if(e.currentTarget == null)
         return;
-    let target= <Element>e.currentTarget;
+    let slot= <Element>e.currentTarget;
+    let data:any = '';
 
     e.preventDefault();
-    let info = await $.getInfo('link',target);
+    let info = await $.getInfo('link',slot);
 
     if(typeof info.before === 'string') {
-        invoke(info.before,window, target);
+        data = $.task(info.before, slot, data) || data;
     }
 
-    let href = target.getAttribute('href');
+    let href = slot.getAttribute('href');
     if(typeof href !== 'string') {
-        throw new Error('missing href attribute on ' + target);
+        throw new Error('missing href attribute on ' + slot);
     }
     $.dispatch('loading', null, {loading: true, target: info.target});
     
     try {
         let resp = await axios.get(href);
-        await info.parseData();
-        let r = $.modify(resp.data, info.getModifiers());
-        $.mutate(info.mutation,r,info.target, info.targetedAttribute,info.mutationParams);
+        let t = await info.getTask();
+        data = await $.task(t, slot, resp.data);
         $.dispatch('loading', null, {loading: false, target: info.target});
-        if(typeof info.after === 'string') {
-            invoke(info.after,window, target,r);
+        if(typeof info.success === 'string') {
+            data = $.task(info.success, slot, data);
         }
     }catch(error) {
         $.dispatch('loading', null, {loading: false, target: info.target });
         if(typeof info.error === 'string') {
-            invoke(info.error,window, target,error);
+            data = $.task(info.error, slot, error) || error;
         }
+        else
+            throw e;
+    }
+    if(typeof info.after === 'string') {
+        $.task(info.after, slot, data);
     }
 }
 

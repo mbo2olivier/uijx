@@ -1,5 +1,5 @@
-import { Dico, getData } from "./helpers";
-import { parseMutation, parseAction } from "./syntax";
+import { Dico, getData, invoke } from "./helpers";
+import { parseMutation, parseAction, parseTask, parseDataSource } from "./syntax";
 
 export class Uijx {
     
@@ -51,7 +51,7 @@ export class Uijx {
         return this;
     }
 
-    public mutate(mutation:string, data:string,target:Element|string, targetedAttrib:string|undefined|null,mutationParams:Array<string|null>=[]): void {
+    public mutate(mutation:string, data:any,target:Element|string, targetedAttrib:string|undefined|null,mutationParams:Array<string|null>=[]): void {
         if(this.mutations[mutation]) {
             let t = typeof target === 'string' ? this.root.querySelector(target): target;
             if(t !== null)
@@ -62,26 +62,41 @@ export class Uijx {
             throw new Error('cannot find mutation named :' + mutation);
     }
 
-    public async getInfo(trigger:string, el:Element): Promise<TriggerInfo> {
-        let e = el as HTMLElement;
-        let m = getData(e,trigger + '-mutation') || "";
-        let mres = await parseMutation(m);
-        if(mres.mutation === 'CALLABLE') {
-            mres.target = el;
-        } else
-            mres.target = mres.target === '' ? el : mres.target;
-        let mparams = mres.params.map((v) => v.computed);
+    public async getInfo(trigger:string, s:Element): Promise<TriggerInfo> {
+        let slot = s as HTMLElement;
+        let m = getData(slot,trigger + '-mutation');
+        let t = new TriggerInfo(this,trigger, s);
+        t.before = getData(slot,trigger + '-before');
+        t.after = getData(slot,trigger + '-after');
+        t.error = getData(slot,trigger + '-error');
+        t.success = getData(slot,trigger + '-success');
+        t.param = getData(slot,'uijx-' + trigger) || "";
+        t.rawData = getData(slot,trigger + '-source') || t.param;
+        t.task = getData(slot,trigger + '-task') || t.rawData;
 
-        let t = new TriggerInfo(this,trigger, el, mres.target, mres.attribute,mres.mutation,mparams);
-        t.before = getData(e,trigger + '-before');
-        t.after = getData(e,trigger + '-after');
-        t.error = getData(e,trigger + '-error');
-        t.param = getData(e,'uijx-' + trigger) || "";
-        t.rawData = getData(e,trigger + '-source') || t.param;
+        if(!m) {
+            let parts = t.task.split('->');
+            m =  parts.length === 3 ? parts[2] : m;
+        }
+        
+        if(m) {
+            t.isMutationDefined = true;
+            let mres = await parseMutation(m);
+            if(mres.mutation === 'CALLABLE') {
+                mres.target = s;
+            } else
+                mres.target = mres.target === '' ? slot : mres.target;
+
+            t.mutationParams = mres.params.map((v) => v.computed);
+            t.mutation = mres.mutation;
+            t.target = mres.target;
+        }else
+            t.isMutationDefined = false;
+
         return t;
     }
 
-    public modify(input:any, mods:ModifierData[]):string {
+    public modify(input:any, mods:ModifierData[]):any {
         return mods.reduce((i,mod) => {
             if(this.modifiers[mod.name]) {
                 let m = this.modifiers[mod.name];
@@ -110,6 +125,57 @@ export class Uijx {
         else
             el.dispatchEvent(ev);
     }
+
+    public async task(task:TaskInfo|string, slot:Element, input:any):Promise<any> {
+        let t:TaskInfo;
+        if(typeof task === 'string') {
+            if(task.indexOf('->') >= 0) {
+                t = new TaskInfo();
+                let res = await parseTask(task, true);
+                t.data = res.data.computed;
+                res.modifiers.forEach(m => {
+                    t.modifiers.push({ name: m.modifier, params : m.params.map(p => p.computed) });
+                });
+
+                if(res.mutation.mutation === 'CALLABLE') {
+                    t.target = slot;
+                } else
+                    t.target = res.mutation.target === '' ? slot : res.mutation.target;
+                
+                t.mutationParams = res.mutation.params.map((v) => v.computed);
+                t.mutation = res.mutation.mutation;
+            }
+            else
+                return invoke(task, window, slot, input) || input;
+        }
+        else
+            t = task;
+
+        let data:any = t.data ? t.data : input;
+        
+        data = this.modify(data, t.modifiers);
+        this.mutate(t.mutation, data, t.target, t.targetedAttribute, t.mutationParams);
+
+        return data;
+    }
+}
+
+export class TaskInfo {
+    public modifiers:ModifierData[];
+    public mutation:string;
+    public mutationParams:Array<string|null>;
+    public target: Element|string;
+    public targetedAttribute: string | undefined | null;
+    public data:any;
+
+    constructor() {
+        this.modifiers = [];
+        this.mutation = 'REPLACE';
+        this.mutationParams = [];
+        this.targetedAttribute = null;
+        this.target = '';
+        this.data = null;
+    }
 }
 
 export class TriggerInfo {
@@ -118,7 +184,9 @@ export class TriggerInfo {
     public before:string|undefined|null;
     public after:string|undefined|null;
     public error:string|undefined|null;
+    public success:string|undefined|null;
     private data:string|undefined|null;
+    public task:string;
     public rawData:string;
     public param:string;
     private modifiers:ModifierData[];
@@ -126,19 +194,47 @@ export class TriggerInfo {
     public mutationParams:Array<string|null>;
     public target: Element|string;
     public targetedAttribute: string | undefined | null;
+    public isMutationDefined:boolean;
     public engine: Uijx;
 
-    constructor(engine:Uijx, t:string, slot:Element, target: Element|string, targetedAttrib:string|null = null, mutation:string="REPLACE", mutationParams:Array<string|null>=[]) {
+    constructor(engine:Uijx, t:string, slot:Element, target: Element|string = '', targetedAttrib:string|null = null, mutation:string="REPLACE", mutationParams:Array<string|null>=[]) {
         this.trigger = t;
         this.slot = slot;
         this.target = target;
         this.engine = engine;
-        this.mutation = mutation;
-        this.targetedAttribute = targetedAttrib;
+        this.mutation = 'REPLACE';
+        this.targetedAttribute = null;
         this.modifiers = [];
         this.rawData = "";
         this.param = "";
-        this.mutationParams = mutationParams;
+        this.mutationParams = [];
+        this.isMutationDefined = false;
+        this.task = '';
+    }
+
+    public async getTask():Promise<TaskInfo> {
+        let t = new TaskInfo();
+        let res = await parseTask(this.task, true, false);
+        t.data = res.data.computed;
+        res.modifiers.forEach(m => {
+            t.modifiers.push({ name: m.modifier, params : m.params.map(p => p.computed) });
+        });
+
+        if(this.isMutationDefined) {
+            t.target = this.target;
+            t.mutation = this.mutation;
+            t.mutationParams = this.mutationParams;
+        }
+        else {
+            if(res.mutation.mutation === 'CALLABLE') {
+                t.target = this.slot;
+            } else
+                t.target = res.mutation.target === '' ? this.slot : res.mutation.target;
+            
+            t.mutationParams = res.mutation.params.map((v) => v.computed);
+        }
+        
+        return t;
     }
 
     public async parseData():Promise<void> {
@@ -167,12 +263,12 @@ export interface Trigger {
 
 export interface Mutation {
     name:string;
-    change(data:string,target:Element, targetedAttrib:string|null,mutationParams:Array<string|null>,$:Uijx):void
+    change(data:any,target:Element, targetedAttrib:string|null,mutationParams:Array<string|null>,$:Uijx):void
 }
 
 export interface Modifier {
     name: string;
-    apply(input:any, params:any[]|undefined):string
+    apply(input:any, params:any[]|undefined):any
 }
 
 export interface ModifierData {

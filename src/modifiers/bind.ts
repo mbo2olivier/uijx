@@ -3,7 +3,7 @@ import * as Sqrl from 'squirrelly';
 export default {
     name: 'BIND',
 
-    apply(input:any, params:any[]|undefined):string {
+    apply(input:any, params:any[]|undefined):any {
         if(typeof params === 'undefined') {
             throw new Error('BIND modifier require to provide Id of element to use as template');
         }

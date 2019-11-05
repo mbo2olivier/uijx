@@ -1,5 +1,5 @@
 import { Uijx } from '../core';
-import { invoke, getEventDetail, getData } from '../helpers';
+import { getEventDetail, getData } from '../helpers';
 
 let $:Uijx;
 
@@ -7,14 +7,17 @@ async function handler(e:Event) {
     var slots = $.getRoot().querySelectorAll("[data-uijx-mutated]");
     let c = <CustomEvent>e;
     let target = <HTMLElement>e.target;
+    let mutation = getEventDetail(c,'mutation');
+    let data = getEventDetail(c,'data');
         
     for(let i=0; i< slots.length;i++) {
-        let info = await $.getInfo('mutated',slots[i]);
+        let slot = slots[i];
+        let info = await $.getInfo('mutated',slot);
 
         let id = info.param;
         if(info.param.indexOf(':') > 0) {
             let p = info.param.split(':');
-            if(!p[1] === getEventDetail(c,'mutation')) {
+            if(p[1] !== mutation) {
                 continue;
             }else{
                 id = p[0];
@@ -24,13 +27,24 @@ async function handler(e:Event) {
 
         if(el !== null && id === target.id) {
             if(typeof info.before === 'string') {
-                invoke(info.before,window, target);
+                data = $.task(info.before, slot, data) || data;
             }
-            await info.parseData();
-            let data = $.modify(info.getData(), info.getModifiers());
-            $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
+            try {
+                let t = await info.getTask();
+                data = await $.task(t, slot, data);
+                if(typeof info.success === 'string') {
+                    data = $.task(info.success, slot, data);
+                }
+            }
+            catch(e) {
+                if(typeof info.error === 'string') {
+                    data = $.task(info.error, slot, e) || e;
+                }
+                else
+                    throw e;
+            }
             if(typeof info.after === 'string') {
-                invoke(info.after,window, target);
+                $.task(info.after, slot, data);
             }
         }
     }

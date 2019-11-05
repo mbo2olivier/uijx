@@ -1,25 +1,35 @@
 import { Uijx } from '../core';
-import { invoke } from '../helpers';
 
 let $:Uijx;
 
 async function handler(e:Event) {
     if(e.currentTarget == null)
         return;
-    let target= <Element>e.currentTarget;
+    let slot= <Element>e.currentTarget;
+    let data:any = '';
 
-    e.preventDefault();
-    let info = await $.getInfo('click',target);
+    let info = await $.getInfo('click',slot);
 
     if(typeof info.before === 'string') {
-        invoke(info.before,window, target);
+        data = $.task(info.before, slot, data) || data;
     }
 
-    await info.parseData();
-    let data = $.modify(info.getData(), info.getModifiers());
-    $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
+    try {
+        let t = await info.getTask();
+        data = await $.task(t, slot, data);
+        if(typeof info.success === 'string') {
+            data = $.task(info.success, slot, data);
+        }
+    }
+    catch(e) {
+        if(typeof info.error === 'string') {
+            data = $.task(info.error, slot, e) || e;
+        }
+        else
+            throw e;
+    }
     if(typeof info.after === 'string') {
-        invoke(info.after,window, target,data);
+        $.task(info.after, slot, data)
     }
 }
 

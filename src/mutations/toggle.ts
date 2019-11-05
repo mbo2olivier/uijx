@@ -2,7 +2,7 @@ import { Uijx } from '../core';
 
 const TOGGLE = {
     name: "TOGGLE",
-    change(data:string,target:Element, targetedAttrib:string|null,mutationParams:Array<string|null>=[],$:Uijx):void {
+    change(data:any,target:Element, targetedAttrib:string|null,mutationParams:Array<string|null>=[],$:Uijx):void {
         let t = <HTMLElement>target;
         if (t.style.display === "none") {
             t.style.display = "block";

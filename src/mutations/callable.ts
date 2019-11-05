@@ -3,7 +3,7 @@ import { invoke } from '../helpers';
 
 const CALLABLE = {
     name: "CALLABLE",
-    change(data:string,target:Element, targetedAttrib:string|null,params:Array<string|null>=[],$:Uijx):void {
+    change(data:any,target:Element, targetedAttrib:string|null,params:Array<string|null>=[],$:Uijx):void {
         if(typeof params === 'undefined') {
             throw new Error('CALLABLE mutation require to provide at least one parameter');
         }

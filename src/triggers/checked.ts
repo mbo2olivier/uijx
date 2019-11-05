@@ -1,5 +1,4 @@
 import { Uijx } from '../core';
-import { invoke } from '../helpers';
 
 let $:Uijx;
 
@@ -7,19 +6,30 @@ async function handler(e:Event) {
     if(e.currentTarget == null)
         return;
     let slot= <HTMLInputElement>e.currentTarget;
-
-    let info = await $.getInfo('checked',slot);
-
-    if(typeof info.before === 'string') {
-        invoke(info.before,window, slot);
-    }
-    
+    let data:any = slot.value;
     if(slot.checked) {
-        await info.parseData();
-        let data = $.modify(info.getData(), info.getModifiers());
-        $.mutate(info.mutation,data,info.target, info.targetedAttribute,info.mutationParams);
+        let info = await $.getInfo('checked',slot);
+
+        if(typeof info.before === 'string') {
+            data = $.task(info.before, slot, data) || data;
+        }
+
+        try {
+            let t = await info.getTask();
+            data = await $.task(t, slot, data);
+            if(typeof info.success === 'string') {
+                data = $.task(info.success, slot, data);
+            }
+        }
+        catch(e) {
+            if(typeof info.error === 'string') {
+                data = $.task(info.error, slot, e) || e;
+            }
+            else
+                throw e;
+        }
         if(typeof info.after === 'string') {
-            invoke(info.after,window, slot,data);
+            $.task(info.after, slot, data);
         }
     }
 }

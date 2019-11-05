@@ -69,6 +69,74 @@ export interface ActionParseResult {
     modifiers: ModifierParseResult[]
 }
 
+export interface TaskParseResult {
+    data: DataSourceParseResult,
+    modifiers: ModifierParseResult[],
+    mutation: MutationParseResult
+}
+
+export async function parseTask(input:string, compute:boolean= false, parseMutationToo:boolean = true): Promise<TaskParseResult> {
+    input = input.replace(/^\s+|\s+$/g, '');
+    let res:TaskParseResult;
+
+    if(input.indexOf('->') >= 0) {
+        let parts = input.split('->');
+        let data = await parseDataSource(parts[0], compute);
+        let mod:ModifierParseResult[] = [];
+        let mut:string = '';
+
+        if(parts.length >= 2) {
+            parts[1] = parts[1].replace(/^\s+|\s+$/g, '');
+
+            if(parts[1] !== '') {
+                let matches = /^:(.*)+$/.exec(parts[1]);
+
+                if(matches) {
+                    for(const m of matches[1].split(':')) {
+                        let _mod = await parseModifier(m,compute);
+                        mod.push(_mod);
+                    }
+                }
+                else {
+                    throw new Error('Error parsing modifiers command :' + parts[1]);
+                }
+            }
+
+            if(parts.length >= 3 && parseMutationToo) {
+                mut = parts[2];
+            }
+        }
+
+        let mutation = (mut === '') ? 
+            {
+                mutation: 'REPLACE',
+                target: '',
+                params: []
+            }
+            : await parseMutation(mut)
+        ;
+
+        res = {
+            data,
+            modifiers: mod,
+            mutation,
+        }
+    }
+    else {
+        res = {
+            data: await parseDataSource(input, compute),
+            modifiers: [],
+            mutation: {
+                mutation: 'REPLACE',
+                target: '',
+                params: []
+            },
+        }
+    }
+
+    return res;
+}
+
 export async function  parseAction(input:string, compute:boolean=true):Promise<ActionParseResult> {
     input = input.replace(/^\s+|\s+$/g, '');
     let res:ActionParseResult;
