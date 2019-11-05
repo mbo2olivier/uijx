@@ -12,25 +12,25 @@ async function handler(e:Event) {
     let info = await $.getInfo('keyup',slot);
 
     if(typeof info.before === 'string') {
-        data = $.task(info.before, slot, data) || data;
+        data = await $.task(info.before, slot, data) || data;
     }
 
     try {
         let t = await info.getTask();
         data = await $.task(t, slot, data);
         if(typeof info.success === 'string') {
-            data = $.task(info.success, slot, data);
+            data = await $.task(info.success, slot, data);
         }
     }
     catch(e) {
         if(typeof info.error === 'string') {
-            data = $.task(info.error, slot, e) || e;
+            data = await $.task(info.error, slot, e) || e;
         }
         else
             throw e;
     }
     if(typeof info.after === 'string') {
-        $.task(info.after, slot, data)
+        await $.task(info.after, slot, data)
     }
 }
 

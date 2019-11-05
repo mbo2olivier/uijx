@@ -11,6 +11,7 @@ import KEYDOWN from './triggers/keydown';
 import CHECKED from './triggers/checked';
 import UNCHECKED from './triggers/unchecked';
 import MUTATED from './triggers/mutated';
+import LOADER from './triggers/loader';
 
 export default {
     LINK,
@@ -26,4 +27,5 @@ export default {
     CHECKED,
     UNCHECKED,
     MUTATED,
+    LOADER,
 }

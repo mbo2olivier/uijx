@@ -20,6 +20,9 @@ function uijx(id:string):Uijx {
     u.registerMutation(Mutations.TOGGLECLASS);
     u.registerMutation(Mutations.FUNC);
     u.registerMutation(Mutations.CALLABLE);
+    u.registerMutation(Mutations.PULSE);
+    u.registerMutation(Mutations.ATTRIB);
+    u.registerMutation(Mutations.INSERT);
 
     // register triggers
     u.registerTrigger(Triggers.LINK);
@@ -35,6 +38,7 @@ function uijx(id:string):Uijx {
     u.registerTrigger(Triggers.CHECKED);
     u.registerTrigger(Triggers.UNCHECKED);
     u.registerTrigger(Triggers.MUTATED);
+    u.registerTrigger(Triggers.LOADER);
 
     //register modifiers
     u.registerModifier(Modifiers.FUNC);

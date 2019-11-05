@@ -5,17 +5,17 @@ let $:Uijx;
 
 async function handler(e:Event) {
     let c = <CustomEvent>e;
-    var slots = $.getRoot().querySelectorAll("[data-uijx-loaded]");
+    var slots = $.getRoot().querySelectorAll("[data-uijx-loader]");
     let dtarget = getEventDetail(c,'target');
     let dloading = getEventDetail(c,'loading');
     let data:any = dloading;
 
     for(let i=0; i< slots.length;i++) {
         let slot = slots[i];
-        let info = await $.getInfo('loading',slot);
+        let info = await $.getInfo('loader',slot);
 
         
-        if(info.param === dtarget.id && dloading === true) {
+        if(info.param === dtarget.id) {
             if(typeof info.before === 'string') {
                 data = await $.task(info.before, slot, data) || data;
             }
@@ -41,8 +41,8 @@ async function handler(e:Event) {
     }
 }
 
-const loading = {
-    name: 'loading',
+const loader = {
+    name: 'loader',
 
     connect(el:Element, uijx:Uijx):void {
         $ = uijx;
@@ -54,4 +54,4 @@ const loading = {
     }
 }
 
-export default loading;
+export default loader;

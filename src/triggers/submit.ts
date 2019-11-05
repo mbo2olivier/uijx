@@ -14,7 +14,7 @@ async function handler(e:Event) {
     let info = await $.getInfo('submit',form);
 
     if(typeof info.before === 'string') {
-        data = $.task(info.before, form, data) || data;
+        data = await $.task(info.before, form, data) || data;
     }
 
     let url = form.getAttribute('action');
@@ -43,19 +43,19 @@ async function handler(e:Event) {
         data = await $.task(t, form, resp.data);
         $.dispatch('loading', null, {loading: false, target: info.target});
         if(typeof info.success === 'string') {
-            data = $.task(info.success, form, data);
+            data = await $.task(info.success, form, data);
         }
     }catch(error) {
         $.dispatch('loading', null, {loading: false, target: info.target});
         if(typeof info.error === 'string') {
-            data = $.task(info.error, form, error) || error;
+            data = await $.task(info.error, form, error) || error;
         }
         else
             throw e;
     }
 
     if(typeof info.after === 'string') {
-        $.task(info.after, form, data);
+        await $.task(info.after, form, data);
     }
 }
 

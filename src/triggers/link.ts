@@ -1,6 +1,5 @@
 import { Uijx } from '../core';
 import axios from 'axios';
-import { invoke } from '../helpers';
 
 let $:Uijx;
 
@@ -14,7 +13,7 @@ async function handler(e:Event) {
     let info = await $.getInfo('link',slot);
 
     if(typeof info.before === 'string') {
-        data = $.task(info.before, slot, data) || data;
+        data = await $.task(info.before, slot, data) || data;
     }
 
     let href = slot.getAttribute('href');
@@ -29,18 +28,18 @@ async function handler(e:Event) {
         data = await $.task(t, slot, resp.data);
         $.dispatch('loading', null, {loading: false, target: info.target});
         if(typeof info.success === 'string') {
-            data = $.task(info.success, slot, data);
+            data = await $.task(info.success, slot, data);
         }
     }catch(error) {
         $.dispatch('loading', null, {loading: false, target: info.target });
         if(typeof info.error === 'string') {
-            data = $.task(info.error, slot, error) || error;
+            data = await $.task(info.error, slot, error) || error;
         }
         else
             throw e;
     }
     if(typeof info.after === 'string') {
-        $.task(info.after, slot, data);
+        await $.task(info.after, slot, data);
     }
 }
 
