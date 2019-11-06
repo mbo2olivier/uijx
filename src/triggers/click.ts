@@ -8,6 +8,7 @@ async function handler(e:Event) {
     let slot= <Element>e.currentTarget;
     let data:any = '';
 
+    e.preventDefault();
     let info = await $.getInfo('click',slot);
 
     if(typeof info.before === 'string') {
