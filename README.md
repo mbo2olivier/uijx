@@ -1,23 +1,24 @@
 UIjx toolkit
 ============
 
-Uijx is a simple toolkit for building reactive web apps from your favorite server side templating engine.
+Uijx is a simple toolkit for building reactive web apps from your favorite server-side templating engine.
 
 ## Why UIjx ?
 
-Sveltejs, vuejs, react, angular ... are great tools for creating a responsive web application, but these tools require additional skills and basics that are not available neccessarily.
+Sveltejs, vuejs, react, angular ... are great tools for creating a reactive web application, but these tools require additional skills and basics that are not available neccessarily.
 
-The idea of ​​the UIjx project is to design responsive web applications directly from its favorite server-side template language (Twig, Blade, Razor, JSF, ...), so a backend developer can build an single page application without going through a component-based UI framework.
+The idea of ​​the UIjx project is to design reactive web applications directly from its favorite server-side templating language (Twig, Blade, Razor, JSF, ...), so a backend developer can build an single page application without going through a component-based UI framework.
 
-## Concept
+In addition, UIjx is unobtrusive : you use `data-*` type HTML attributes to describe interaction you want in a very intuitive way.
 
-![UIjx process](res/uijx.png)
+## Main Concepts
+
+![UIjx process](res/concepts.png)
 
 Basic UIjx concepts:
 
-- Triggers : as its name implies, this component attached to a DOM node (called "Slot") has the role of triggering task on specifics occasions (event of the DOM, ajax response callback ...) and generating raw data from various sources.
-- Modifiers : This component transforms incoming data and outputs the result. Modifiers can be combined.
-- Mutations : This component represents an alteration of the DOM.
+- Trigger : as its name implies, It is a command that describes the way a task should be triggered, it can be a DOM event, an ajax callback response etc...
+- Tasks : It's the core of the UIjx library, *tasks* is used to describe the interaction of your application.
 
 ## Installation
 
@@ -28,7 +29,7 @@ Download the latest [release](https://github.com/mbo2olivier/uijx/releases) of U
 ```
 And that's all
 
-## Usage
+## First example
 
 Working with UIjx will consist most of the time of adding annotations to your HTML tags. These annotations come in the form of attributes of type `data-*`.
 In the example below, when clicking on the link UIjx will issue a request to the URL and replace the contents of the tag `#target` by the result:
@@ -37,7 +38,7 @@ In the example below, when clicking on the link UIjx will issue a request to the
 ...
 <div id="app-container">
     
-    <a href="http://www.foo.bar" data-uijx-link ="() ->-> #target:replace">replace content</a>
+    <a href="http://www.foo.bar" data-uijx-link ="() ->-> #target">replace content</a>
     <div id="target"></div>
 </div>
 ...
