@@ -1,4 +1,4 @@
-import {getDataAtribute, toCamelCase, toKebabCase, evaluate, evaluateAndReturn, crawl } from './helpers';
+import {getDataAttribute, toCamelCase, toKebabCase, evaluate, evaluateAndReturn, crawl } from './helpers';
 import Proxy from 'es6-proxy-polyfill/dist/es6-proxy-polyfill';
 import "custom-event-polyfill"
 
@@ -11,12 +11,7 @@ export class Engine {
         
         this.mutations = {};
         this.triggers = {};
-        
-        this.tags = {}; 
-        let taggedEl = root.querySelectorAll('[data-tag]');
-        for (var i = 0, len = taggedEl.length; i < len; i++) {
-            this.tags[toCamelCase(getDataAtribute(taggedEl[i], 'tag'))] = '';
-        }
+        this.tags = {};
     }
 
     start() {
@@ -37,7 +32,7 @@ export class Engine {
             $dom: new Proxy($.tags, {
                 get(subject, prop) {
                     if(prop in subject) {
-                        return $.createMutableElement($.root.querySelector('[data-tag = ' + prop +']'));
+                        return $.createMutableElement(document.getElementById(prop));
                     }
                 }
             }),
@@ -98,6 +93,7 @@ export class Engine {
         let $ = this;
         crawl(el, (e) => {
             if(e.id && !e._uijx_initiated) {
+                $.tags[toCamelCase(e.id)] = '';
                 for(let i=0; i < e.attributes.length; i++) {
                     let a = e.attributes[i];
                     if(TriggerAttribRE.test(a.name)) { 
@@ -136,9 +132,9 @@ export class TriggerInfo {
         if(matches) {
             this.trigger = matches[1];
             this.modifiers = matches[2] || '';
-            this.after = getDataAtribute(el, this.trigger + '-after');
-            this.before = getDataAtribute(el, this.trigger + '-before');
-            this.error = getDataAtribute(el,this.trigger + '-error');
+            this.after = getDataAttribute(el, this.trigger + '-after');
+            this.before = getDataAttribute(el, this.trigger + '-before');
+            this.error = getDataAttribute(el,this.trigger + '-error');
             this.task = el.getAttribute(attribute);
         }
         else

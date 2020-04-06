@@ -17,7 +17,7 @@ export function crawl(e, callback) {
     }
 }
 
-export function getDataAtribute(el, name) {
+export function getDataAttribute(el, name) {
     if(el.dataset !== undefined) {
         return el.dataset[toCamelCase(name)];
     }else {
