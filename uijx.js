@@ -1,13 +1,30 @@
 import {Engine} from './src/core';
-import event from './src/triggers/event'
+import event from './src/triggers/event';
+import { SHOW , ADDCLASS, RMCLASS, VISIBLE, STYLE, CLASSES, ATTRIB, VALUE, TEXT, HTML, AFTER, BEFORE, PREPEND, APPEND } from './src/mutations';
 
-function uijx(id) {
+function Uijx(id) {
     let root = document.getElementById(id);
     
     if(root){
         let e = new Engine(root);
-
+        // register built-in triggers
         e.registerTrigger(event);
+
+        //register built-in mutations
+        e.registerMutation(SHOW);
+        e.registerMutation(ADDCLASS);
+        e.registerMutation(RMCLASS);
+        e.registerMutation(STYLE);
+        e.registerMutation(VISIBLE);
+        e.registerMutation(CLASSES);
+        e.registerMutation(ATTRIB);
+        e.registerMutation(VALUE);
+        e.registerMutation(TEXT);
+        e.registerMutation(HTML);
+        e.registerMutation(AFTER);
+        e.registerMutation(BEFORE);
+        e.registerMutation(APPEND);
+        e.registerMutation(PREPEND);
 
         return e;
     }
@@ -15,4 +32,4 @@ function uijx(id) {
         throw new Error('cannot find element with id: ' + id);
 }
 
-window["uijx"] = uijx;
+window["Uijx"] = Uijx;

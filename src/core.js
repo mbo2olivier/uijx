@@ -28,7 +28,7 @@ export class Engine {
     }
 
     registerMutation(m) {
-        this.mutations[m.name] = m.apply;
+        this.mutations[toCamelCase(m.name)] = m.apply;
     }
 
     getEmptyContext() {
@@ -63,7 +63,7 @@ export class Engine {
         return new Proxy(subject, {
             set (s, prop, value) {
                 if(typeof mutations[prop] !== 'undefined') {
-                    mutations[prop](value, t, $);
+                    mutations[prop](value, s.$el, $);
                     return true;
                 }
                 return false;
@@ -71,6 +71,9 @@ export class Engine {
             get (s, prop) {
                 if(prop === '$el') {
                     return s[prop];
+                }
+                if(prop === 'value') {
+                    return s.$el.value;
                 }
                 return undefined;
             }
@@ -109,7 +112,7 @@ export class Engine {
                                     detail: { waiting: true, slot: e }
                                 }));
                                 
-                                trigger.handle(e, event, info, $, () => {
+                                trigger.handle($.createMutableElement(e), event, info, $, () => {
                                     e.dispatchEvent(new CustomEvent('waiting', {
                                         detail: { waiting: false, slot: e }
                                     }));
