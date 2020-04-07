@@ -1,6 +1,7 @@
-import {getDataAttribute, toCamelCase, toKebabCase, evaluate, evaluateAndReturn, crawl } from './helpers';
+import {getDataAttribute, toCamelCase, toKebabCase, evaluate, evaluateAndReturn, crawl, evaluateAndPromise } from './helpers';
 import Proxy from 'es6-proxy-polyfill/dist/es6-proxy-polyfill';
-import "custom-event-polyfill"
+import "custom-event-polyfill";
+import 'whatwg-fetch';
 
 const TriggerAttribRE = /^data-on:([a-zA-Z0-9\-]+)(\.[a-zA-Z\.\-]*)?$/;
 
@@ -41,6 +42,12 @@ export class Engine {
             q (query) {
                 let el = $.root.querySelector(query);
                 return el ? $.createMutableElement(el) : undefined;
+            },
+            fetchText(url) {
+                return fetch(url).then(r => r.text());
+            },
+            fetchJson(url) {
+                return fetch(url).then(r => r.json());
             }
         };
     }
@@ -106,9 +113,8 @@ export class Engine {
                 task = "$data";
             }
 
-            $.run(task, slot, ctx.$data, (d) => {
-                $.run(tasks.join('->'), slot, d, callback, true);
-            }, false);
+            evaluateAndPromise(task, ctx)
+            .then(d => { $.run(tasks.join('->'), slot, d, callback, true); });
         }
     }
 

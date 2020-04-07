@@ -1,7 +1,13 @@
+import 'promise-polyfill/src/polyfill';
 
 export function evaluateAndReturn(expression, ctx) {
     let f = new Function('c', 'with (c) { return ' + expression + ' }');
     return f(ctx);
+}
+
+export function evaluateAndPromise(expression, ctx) {
+    let data = (new Function('c', 'with (c) { return ' + expression + ' }'))(ctx);
+    return Promise.resolve(data);
 }
 
 export function evaluate(expression, ctx) {
