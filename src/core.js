@@ -75,17 +75,40 @@ export class Engine {
         });
     }
 
-    run(task, slot, data = null, callback = undefined) {
+    run(task, slot, data = null, callback = undefined, isArrowSyntax = false) {
         let ctx = this.getEmptyContext();
         ctx.$data = data;
         ctx.$el = slot;
 
-        if(callback) {
-            let value = evaluateAndReturn(task, ctx);
-            callback(value);
+        let tasks = (task || '').split('->');
+
+        if(tasks.length === 1) {
+            task = tasks[0];
+
+            if(isArrowSyntax) {
+                evaluate( task + ' = $data', ctx);
+            }
+            else {
+                if(callback) {
+                    let value = evaluateAndReturn(task, ctx);
+                    callback(value);
+                }
+                else {
+                    evaluate(task, ctx);
+                }
+            }
         }
         else {
-            evaluate(task, ctx);
+            let $ = this;
+            task = tasks.shift();
+            //check if task contain only white space
+            if(!task.replace(/\s/g, '').length) {
+                task = "$data";
+            }
+
+            $.run(task, slot, ctx.$data, (d) => {
+                $.run(tasks.join('->'), slot, d, callback, true);
+            }, false);
         }
     }
 
