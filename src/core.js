@@ -89,6 +89,12 @@ export class Engine {
         }
     }
 
+    dispatch(el, event, data) {
+        el.dispatchEvent(new CustomEvent(event, {
+            detail: data, bubbles: true
+        }));
+    }
+
     mount(el) {
         let $ = this;
         crawl(el, (e) => {
@@ -101,7 +107,9 @@ export class Engine {
                         let trigger = $.triggers[info.trigger] || $.triggers['event'];
                         if(trigger) {
                             let target = null;
-                            if(trigger.attachTo === 'root')
+                            if(trigger.attachTo === 'document')
+                                target = document;
+                            else if(trigger.attachTo === 'root')
                                 target = $.root;
                             else if(trigger.attachTo === 'self')
                                 target = e;
@@ -112,14 +120,14 @@ export class Engine {
                                 let ev = toKebabCase(trigger.event || info.trigger);
                             
                                 target.addEventListener(ev, (event) => {
-                                    e.dispatchEvent(new CustomEvent('waiting', {
-                                        detail: { waiting: true, slot: e }
-                                    }));
+                                    if(trigger.waiting) {
+                                        $.dispatch(e, 'waiting', { waiting: true, slot: e });
+                                    }
                                     
                                     trigger.handle($.createMutableElement(e), event, info, $, () => {
-                                        e.dispatchEvent(new CustomEvent('waiting', {
-                                            detail: { waiting: false, slot: e }
-                                        }));
+                                        if(trigger.waiting) {
+                                            $.dispatch(e, 'waiting', { waiting: false, slot: e });
+                                        }
                                     })
                                 });
                             }
@@ -156,5 +164,9 @@ export class TriggerInfo {
 
     hasModifier(modifier) {
         return this.modifiers.indexOf('.' + modifier) >= 0;
+    }
+
+    containModifiers() {
+        return this.modifiers.trim().length !== 0;
     }
 }

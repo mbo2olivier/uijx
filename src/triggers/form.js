@@ -6,6 +6,7 @@ export default {
     name: 'form',
     attachTo: 'FORM',
     event: 'submit',
+    waiting: true,
     handle (slot, event, info, $, callback) {
         event.preventDefault();
         let data = undefined;

@@ -5,7 +5,7 @@ export const SHOW = {
     apply (data, el, $) {
         el.style.display =  data ? 'block' : 'none';
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'show', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'show', target: el });
     }
 }
 
@@ -19,7 +19,7 @@ export const ADDCLASS = {
             el.classList.add(data[i]);
         }
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'add-class', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'add-class', target: el });
     }
 }
 
@@ -33,7 +33,7 @@ export const RMCLASS = {
             el.classList.remove(data[i]);
         }
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'rm-class', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'rm-class', target: el });
     }
 }
 
@@ -42,7 +42,7 @@ export const VISIBLE = {
     apply (data, el, $) {
         el.style.visibility =  data ? 'visible' : 'hidden';
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'visible', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'visible', target: el });
     }
 }
 
@@ -53,7 +53,7 @@ export const STYLE = {
             el.style[toKebabCase(prop)] = data[prop];
         }
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'style', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'style', target: el });
     }
 }
 
@@ -69,7 +69,7 @@ export const CLASSES = {
             }
         }
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'classes', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'classes', target: el });
     }
 }
 
@@ -80,7 +80,7 @@ export const ATTRIB = {
             el.setAttribute(toKebabCase(prop), data[prop]);
         }
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'attrib', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'attrib', target: el });
     }
 }
 
@@ -89,7 +89,7 @@ export const VALUE = {
     apply (data, el, $) {
         el.value = data;
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'value', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'value', target: el });
     }
 }
 
@@ -98,7 +98,7 @@ export const TEXT = {
     apply (data, el, $) {
         el.innerText = data;
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'text', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'text', target: el });
     }
 }
 
@@ -109,7 +109,7 @@ export const HTML = {
         
         $.mount(el);
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'html', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'html', target: el });
     }
 }
 
@@ -120,7 +120,7 @@ export const BEFORE = {
         
         $.mount(el);
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'before', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'before', target: el });
     }
 }
 
@@ -131,7 +131,7 @@ export const AFTER = {
         
         $.mount(el);
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'after', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'after', target: el });
     }
 }
 
@@ -142,7 +142,7 @@ export const APPEND = {
         
         $.mount(el);
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'after', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'append', target: el });
     }
 }
 
@@ -153,6 +153,6 @@ export const PREPEND = {
         
         $.mount(el);
 
-        el.dispatchEvent(new CustomEvent('dom-mutated', { detail: { mutation: 'prepend', target: el } }));
+        $.dispatch(el, 'dom-mutated', { mutation: 'prepend', target: el });
     }
 }

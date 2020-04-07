@@ -5,6 +5,7 @@ export default {
     name: 'link',
     attachTo: 'A',
     event: 'click',
+    waiting: true,
     handle (slot, event, info, $, callback) {
         event.preventDefault();
         let data = undefined;

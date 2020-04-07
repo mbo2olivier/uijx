@@ -2,6 +2,7 @@ export default {
     name: 'event',
     attachTo: 'self',
     event: null,
+    waiting: true,
     handle (slot, event, info, $, callback) {
         let data = undefined;
         
