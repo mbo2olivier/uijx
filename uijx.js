@@ -1,5 +1,7 @@
 import {Engine} from './src/core';
 import event from './src/triggers/event';
+import link from './src/triggers/link';
+import form from './src/triggers/form';
 import { SHOW , ADDCLASS, RMCLASS, VISIBLE, STYLE, CLASSES, ATTRIB, VALUE, TEXT, HTML, AFTER, BEFORE, PREPEND, APPEND } from './src/mutations';
 
 function Uijx(id) {
@@ -9,6 +11,8 @@ function Uijx(id) {
         let e = new Engine(root);
         // register built-in triggers
         e.registerTrigger(event);
+        e.registerTrigger(link);
+        e.registerTrigger(form);
 
         //register built-in mutations
         e.registerMutation(SHOW);

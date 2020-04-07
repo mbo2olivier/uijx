@@ -48,3 +48,21 @@ export function toKebabCase(str) {
         .toLowerCase()
     ;
 }
+
+export function serializeForm(f) {
+    let data = {};
+    f.forEach(function(value, key){
+        data[key] = value;
+    });
+    return data;
+}
+
+export function encodeUriParameters(data) {
+    let params = [];
+    var esc = encodeURIComponent;
+    for(const key in data) {
+        params.concat(esc(key) + '=' + esc(data[key]));
+    }
+
+    return params.join('&');
+}

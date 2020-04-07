@@ -100,20 +100,29 @@ export class Engine {
                         let info = new TriggerInfo(e, a.name);
                         let trigger = $.triggers[info.trigger] || $.triggers['event'];
                         if(trigger) {
-                            let target = trigger.attachTo === 'root' ? $.root : e;
-                            let ev = toKebabCase(trigger.event || info.trigger);
+                            let target = null;
+                            if(trigger.attachTo === 'root')
+                                target = $.root;
+                            else if(trigger.attachTo === 'self')
+                                target = e;
+                            else
+                                target = (new RegExp('^' + trigger.attachTo + '$')).test(e.nodeName.toUpperCase()) ? e :null;
+
+                            if(target) {
+                                let ev = toKebabCase(trigger.event || info.trigger);
                             
-                            target.addEventListener(ev, (event) => {
-                                e.dispatchEvent(new CustomEvent('waiting', {
-                                    detail: { waiting: true, slot: e }
-                                }));
-                                
-                                trigger.handle($.createMutableElement(e), event, info, $, () => {
+                                target.addEventListener(ev, (event) => {
                                     e.dispatchEvent(new CustomEvent('waiting', {
-                                        detail: { waiting: false, slot: e }
+                                        detail: { waiting: true, slot: e }
                                     }));
-                                })
-                            });
+                                    
+                                    trigger.handle($.createMutableElement(e), event, info, $, () => {
+                                        e.dispatchEvent(new CustomEvent('waiting', {
+                                            detail: { waiting: false, slot: e }
+                                        }));
+                                    })
+                                });
+                            }
                         }
                     }
                 }
