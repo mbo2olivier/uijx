@@ -2,6 +2,7 @@ import {getDataAttribute, toCamelCase, toKebabCase, evaluate, evaluateAndReturn,
 import Proxy from 'es6-proxy-polyfill/dist/es6-proxy-polyfill';
 import "custom-event-polyfill";
 import 'whatwg-fetch';
+import Store from './store';
 
 const TriggerAttribRE = /^data-on:([a-zA-Z0-9\-]+)(\.[a-zA-Z\.\-]*)?$/;
 
@@ -13,10 +14,17 @@ export class Engine {
         this.mutations = {};
         this.triggers = {};
         this.tags = {};
+        this.store = null;
     }
 
     start() {
         this.mount(this.root);
+    }
+
+    createStore(params) {
+        this.store = new Store(this, params);
+
+        return this;
     }
 
     registerTrigger(t) {
@@ -48,6 +56,15 @@ export class Engine {
             },
             fetchJson(url) {
                 return fetch(url).then(r => r.json());
+            },
+            $state: $.store ? $.store.state : undefined,
+            $dispatch (action, payload) {
+                if($.store) {
+                    $.store.dispatch(action, payload);
+                }
+                else {
+                    console.error('no store founded. call Engine.createStore before use $dispatch function');
+                }
             }
         };
     }
