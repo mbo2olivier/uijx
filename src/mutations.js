@@ -9,6 +9,19 @@ export const SHOW = {
     }
 }
 
+export const TOGGLE = {
+    name: 'toggle',
+    apply (data, el, $) {
+        if (el.style.display === "none") {
+            el.style.display = "block";
+        } else {
+            el.style.display = "none";
+        }
+
+        $.dispatch(el, 'dom-mutated', { mutation: 'toggle', target: el });
+    }
+}
+
 export const ADDCLASS = {
     name: 'add-class',
     apply (data, el, $) {
@@ -34,6 +47,20 @@ export const RMCLASS = {
         }
 
         $.dispatch(el, 'dom-mutated', { mutation: 'rm-class', target: el });
+    }
+}
+
+export const TOGGLECLASS = {
+    name: 'toggle-class',
+    apply (data, el, $) {
+        if(typeof data === 'string') {
+            data = data.split(' ');
+        }
+        for(const i in data) {
+            el.classList.toggle(data[i]);
+        }
+
+        $.dispatch(el, 'dom-mutated', { mutation: 'toggle-class', target: el });
     }
 }
 

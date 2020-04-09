@@ -5,7 +5,7 @@ import form from './src/triggers/form';
 import waiting from './src/triggers/waiting';
 import mutation from './src/triggers/mutation';
 import stateChanged from './src/triggers/stateChanged';
-import { SHOW , ADDCLASS, RMCLASS, VISIBLE, STYLE, CLASSES, ATTRIB, VALUE, TEXT, HTML, AFTER, BEFORE, PREPEND, APPEND } from './src/mutations';
+import { SHOW , TOGGLE, ADDCLASS, RMCLASS, TOGGLECLASS, VISIBLE, STYLE, CLASSES, ATTRIB, VALUE, TEXT, HTML, AFTER, BEFORE, PREPEND, APPEND } from './src/mutations';
 
 function Uijx(id) {
     let root = document.getElementById(id);
@@ -22,8 +22,10 @@ function Uijx(id) {
 
         //register built-in mutations
         e.registerMutation(SHOW);
+        e.registerMutation(TOGGLE);
         e.registerMutation(ADDCLASS);
         e.registerMutation(RMCLASS);
+        e.registerMutation(TOGGLECLASS);
         e.registerMutation(STYLE);
         e.registerMutation(VISIBLE);
         e.registerMutation(CLASSES);
