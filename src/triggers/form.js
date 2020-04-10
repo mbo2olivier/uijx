@@ -1,5 +1,6 @@
 import 'whatwg-fetch';
 import 'promise-polyfill/src/polyfill';
+import 'formdata-polyfill';
 import { serializeForm, encodeUriParameters } from '../helpers';
 
 export default {

@@ -111,6 +111,9 @@ export class Engine {
 
             if(isArrowSyntax) {
                 evaluate( task + ' = $data', ctx);
+                if(callback) {
+                    callback(undefined);
+                }
             }
             else {
                 if(callback) {

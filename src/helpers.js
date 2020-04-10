@@ -1,4 +1,5 @@
 import 'promise-polyfill/src/polyfill';
+import 'weakmap-polyfill';
 
 export function evaluateAndReturn(expression, ctx) {
     let f = new Function('c', 'with (c) { return ' + expression + ' }');
@@ -57,9 +58,12 @@ export function toKebabCase(str) {
 
 export function serializeForm(f) {
     let data = {};
-    f.forEach(function(value, key){
+    for(const pair of f.entries()) {
+        data[pair[0]] = pair[1];
+    }
+    /*f.forEach(function(value, key){
         data[key] = value;
-    });
+    });*/
     return data;
 }
 
@@ -67,7 +71,7 @@ export function encodeUriParameters(data) {
     let params = [];
     var esc = encodeURIComponent;
     for(const key in data) {
-        params.concat(esc(key) + '=' + esc(data[key]));
+        params = params.concat(esc(key) + '=' + esc(data[key]));
     }
 
     return params.join('&');
