@@ -5,6 +5,7 @@ import form from './src/triggers/form';
 import waiting from './src/triggers/waiting';
 import mutation from './src/triggers/mutation';
 import stateChanged from './src/triggers/stateChanged';
+import mounted from './src/triggers/mounted';
 import { SHOW , TOGGLE, ADDCLASS, RMCLASS, TOGGLECLASS, VISIBLE, STYLE, CLASSES, ATTRIB, VALUE, TEXT, HTML, AFTER, BEFORE, PREPEND, APPEND } from './src/mutations';
 
 function Uijx(id) {
@@ -19,6 +20,7 @@ function Uijx(id) {
         e.registerTrigger(waiting);
         e.registerTrigger(mutation);
         e.registerTrigger(stateChanged);
+        e.registerTrigger(mounted);
 
         //register built-in mutations
         e.registerMutation(SHOW);

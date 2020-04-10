@@ -19,6 +19,7 @@ export class Engine {
 
     start() {
         this.mount(this.root);
+        this.dispatch(this.root, 'mounted');
     }
 
     createStore(params) {
