@@ -42,6 +42,7 @@ export class Engine {
             $dom: new Proxy($.tags, {
                 get(subject, prop) {
                     if(prop in subject) {
+                        prop = toKebabCase(prop);
                         return $.createMutableElement(document.getElementById(prop));
                     }
                 }
