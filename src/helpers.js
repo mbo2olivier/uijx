@@ -8,6 +8,7 @@ export function evaluateAndReturn(expression, ctx) {
 
 export function evaluateAndPromise(expression, ctx) {
     let data = (new Function('c', 'with (c) { return ' + expression + ' }'))(ctx);
+    if (data instanceof Error) return Promise.reject(data);
     return Promise.resolve(data);
 }
 

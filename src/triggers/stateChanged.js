@@ -3,16 +3,21 @@ export default {
     attachTo: 'document',
     event: 'state-change',
     waiting: false,
-    handle (slot, event, info, $, callback) {
+    handle (slot, event, info, $) {
         let data = event.detail.value;
 
         if(info.hasModifier(event.detail.state) || !info.containModifiers()) {
             
-            $.run(info.before, slot, data, (d) => {
-                d = d || data;
-        
-                $.run(info.task,slot, d, (d) => $.run(info.after, slot, d, callback));
-            });
+            return $.run(info.before, slot, data)
+                    .then((d) => {
+                        d = d || data;
+                
+                        return $.run(info.task,slot, d);
+                    })
+                    .then((d) => $.run(info.after, slot, d))
+            ;
         }
+
+        return Promise.resolve(undefined);
     }
 }

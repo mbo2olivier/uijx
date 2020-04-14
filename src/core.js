@@ -101,43 +101,31 @@ export class Engine {
         });
     }
 
-    run(task, slot, data = null, callback = undefined, isArrowSyntax = false) {
+    run(task, slot, data = null, isArrowSyntax = false) {
         let ctx = this.getEmptyContext();
         ctx.$data = data;
         ctx.$el = slot;
 
-        let tasks = (task || '').split('->');
+        task = (task || '');
+        if(task.indexOf('->') >= 0) {
+            let tasks = (task || '').split('->');
+            let runner = new Task();
 
-        if(tasks.length === 1) {
-            task = tasks[0];
+            while(tasks.length > 0) {
+                let expr = tasks.shift();
+                //check if task contain only white space
+                if(!expr.replace(/\s/g, '').length) {
+                    expr = "$data";
+                }
+                expr = tasks.length === 0 ? expr + ' = $data' : expr;
 
-            if(isArrowSyntax) {
-                evaluate( task + ' = $data', ctx);
-                if(callback) {
-                    callback(undefined);
-                }
+                runner.enqueue(expr);
             }
-            else {
-                if(callback) {
-                    let value = evaluateAndReturn(task, ctx);
-                    callback(value);
-                }
-                else {
-                    evaluate(task, ctx);
-                }
-            }
+
+            return runner.run(ctx, data);
         }
-        else {
-            let $ = this;
-            task = tasks.shift();
-            //check if task contain only white space
-            if(!task.replace(/\s/g, '').length) {
-                task = "$data";
-            }
-
-            evaluateAndPromise(task, ctx)
-            .then(d => { $.run(tasks.join('->'), slot, d, callback, true); });
-        }
+        else
+            return evaluateAndPromise(task, ctx);
     }
 
     dispatch(el, event, data) {
@@ -174,8 +162,17 @@ export class Engine {
                                     if(trigger.waiting) {
                                         $.dispatch(e, 'waiting', { waiting: true, slot: e });
                                     }
-                                    
-                                    trigger.handle($.createMutableElement(e), event, info, $, () => {
+
+                                    trigger.handle($.createMutableElement(e), event, info, $)
+                                    .catch(er => {
+                                        if(info.error) {
+                                            $.run(info.error, e, er);
+                                        }
+                                        else {
+                                            console.error("error thrown, use data-*-error hook to capture error",er);
+                                        }
+                                    })
+                                    .then(() => {
                                         if(trigger.waiting) {
                                             $.dispatch(e, 'waiting', { waiting: false, slot: e });
                                         }
@@ -219,5 +216,55 @@ export class TriggerInfo {
 
     containModifiers() {
         return this.modifiers.trim().length !== 0;
+    }
+}
+
+class Task {
+    constructor() {
+        this.queue = [];
+        this.isWorking = false;
+    }
+
+    enqueue (expr) {
+        this.queue.push({promise: (ctx) => evaluateAndPromise(expr, ctx)});
+    }
+
+    run (ctx, data = undefined) {
+        let self = this;
+
+        return new Promise((resolve, reject) => {
+            const _dequeue = (ctx, data) => {
+
+                if(self.isWorking)
+                    return;
+
+                const item = self.queue.shift();
+                if(!item) {
+                    resolve(data);
+                    return;
+                }
+
+                try {
+                    self.isWorking  = true;
+                    ctx.$data = data;
+                    item.promise(ctx)
+                    .then((value) => {
+                        self.isWorking = false;
+                        _dequeue(ctx, value);
+                    })
+                    .catch(err => {
+                        self.isWorking = false;
+                        reject(err);
+                    })
+                }
+                catch(err) {
+                    self.isWorking = false;
+                    reject(err);
+                }
+            };
+
+            _dequeue(ctx, data);
+
+        });
     }
 }

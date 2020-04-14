@@ -10,7 +10,7 @@ export default {
         event.preventDefault();
         let data = undefined;
 
-        $.run(info.before, slot, data, (d) => {
+        return $.run(info.before, slot, data, (d) => {
             let href = slot.$el.getAttribute('href');
             fetch(href)
                 .then(r => {
@@ -28,20 +28,13 @@ export default {
                 })
                 .then(({status, content})=> {
                     if(status >= 400) {
-                        if(info.error) {
-                            $.run(info.error,slot, content, (d) => $.run(info.after, slot, d, callback));
-                        }
-                        else {
-                            throw new Error('error after fetching ressource. use the error hook to query the request result');
-                        }
+                        throw content;
                     }
                     else {
-                        $.run(info.task,slot, content, (d) => $.run(info.after, slot, d, callback));
+                        $.run(info.task,slot, content);
                     }
                 })
-                .catch(e => {
-                    console.error(e);
-                })
+                .then((d) => $.run(info.after, slot, d, callback))
             ;
         });
     }
