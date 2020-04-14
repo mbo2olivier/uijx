@@ -96,6 +96,15 @@ export class Engine {
                 if(prop === 'value') {
                     return s.$el.value;
                 }
+                if(prop === 'id') {
+                    return s.$el.id;
+                }
+                if(prop === 'classes') {
+                    return s.$el.classname;
+                }
+                if(prop === 'href') {
+                    return s.$el.href;
+                }
                 return undefined;
             }
         });
