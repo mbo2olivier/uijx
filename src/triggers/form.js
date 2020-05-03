@@ -8,7 +8,7 @@ export default {
     attachTo: 'FORM',
     event: 'submit',
     waiting: true,
-    handle (slot, event, info, $, callback) {
+    handle (slot, event, info, $) {
         event.preventDefault();
         let data = undefined;
 
