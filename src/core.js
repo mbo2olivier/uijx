@@ -1,4 +1,4 @@
-import {getDataAttribute, toCamelCase, toKebabCase, evaluate, evaluateAndReturn, crawl, evaluateAndPromise } from './helpers';
+import {getDataAttribute, toCamelCase, toKebabCase, setDataAttribute, crawl, evaluateAndPromise } from './helpers';
 import Proxy from 'es6-proxy-polyfill/dist/es6-proxy-polyfill';
 import "custom-event-polyfill";
 import 'whatwg-fetch';
@@ -11,6 +11,7 @@ export class Engine {
     constructor(root) {
         this.root = root;
         
+        this.mixins = {};
         this.mutations = {};
         this.triggers = {};
         this.tags = {};
@@ -28,12 +29,22 @@ export class Engine {
         return this;
     }
 
-    registerTrigger(t) {
+    trigger(t) {
         this.triggers[t.name] = t;
+
+        return this;
     }
 
-    registerMutation(m) {
+    mixin(name, script) {
+        this.mixins[name] = new Mixin(script);
+
+        return this;
+    }
+
+    mutation(m) {
         this.mutations[toCamelCase(m.name)] = m.apply;
+
+        return this;
     }
 
     getEmptyContext() {
@@ -146,47 +157,64 @@ export class Engine {
     mount(el) {
         let $ = this;
         crawl(el, (e) => {
-            if(e.id && !e._uijx_initiated) {
-                $.tags[toCamelCase(e.id)] = '';
-                for(let i=0; i < e.attributes.length; i++) {
-                    let a = e.attributes[i];
-                    if(TriggerAttribRE.test(a.name)) { 
-                        let info = new TriggerInfo(e, a.name);
-                        let trigger = $.triggers[info.trigger] || $.triggers['event'];
-                        if(trigger) {
-                            let target = null;
-                            if(trigger.attachTo === 'document')
-                                target = document;
-                            else if(trigger.attachTo === 'root')
-                                target = $.root;
-                            else if(trigger.attachTo === 'self')
-                                target = e;
-                            else
-                                target = (new RegExp('^' + trigger.attachTo + '$')).test(e.nodeName.toUpperCase()) ? e :null;
+            let processAnyway = false;
 
-                            if(target) {
-                                let ev = toKebabCase(trigger.event || info.trigger);
-                            
-                                target.addEventListener(ev, (event) => {
-                                    if(trigger.waiting) {
-                                        $.dispatch(e, 'waiting', { waiting: true, slot: e });
-                                    }
+            if(!e._uijx_initiated) {
+                if(e.getAttribute("data-uijx:mixin")) {
+                    let mname = e.getAttribute("data-uijx:mixin");
+                    processAnyway = true;
+                    
+                    let mixin = $.mixins[mname];
+                    if(mixin) {
+                        mixin.attachTo(e);
+                    }
+                    else {
+                        console.error("cannot find mixin named: '" + mname + "'");
+                    }
+                }
 
-                                    trigger.handle($.createMutableElement(e), event, info, $)
-                                    .catch(er => {
-                                        if(info.error) {
-                                            $.run(info.error, e, er);
-                                        }
-                                        else {
-                                            console.error("error thrown, use data-*-error hook to capture error",er);
-                                        }
-                                    })
-                                    .then(() => {
+                if(e.id || processAnyway) {
+                    $.tags[toCamelCase(e.id)] = '';
+                    for(let i=0; i < e.attributes.length; i++) {
+                        let a = e.attributes[i];
+                        if(TriggerAttribRE.test(a.name)) { 
+                            let info = new TriggerInfo(e, a.name);
+                            let trigger = $.triggers[info.trigger] || $.triggers['event'];
+                            if(trigger) {
+                                let target = null;
+                                if(trigger.attachTo === 'document')
+                                    target = document;
+                                else if(trigger.attachTo === 'root')
+                                    target = $.root;
+                                else if(trigger.attachTo === 'self')
+                                    target = e;
+                                else
+                                    target = (new RegExp('^' + trigger.attachTo + '$')).test(e.nodeName.toUpperCase()) ? e :null;
+
+                                if(target) {
+                                    let ev = toKebabCase(trigger.event || info.trigger);
+                                
+                                    target.addEventListener(ev, (event) => {
                                         if(trigger.waiting) {
-                                            $.dispatch(e, 'waiting', { waiting: false, slot: e });
+                                            $.dispatch(e, 'waiting', { waiting: true, slot: e });
                                         }
-                                    })
-                                });
+
+                                        trigger.handle($.createMutableElement(e), event, info, $)
+                                        .catch(er => {
+                                            if(info.error) {
+                                                $.run(info.error, e, er);
+                                            }
+                                            else {
+                                                console.error("error thrown, use data-*-error hook to capture error",er);
+                                            }
+                                        })
+                                        .then(() => {
+                                            if(trigger.waiting) {
+                                                $.dispatch(e, 'waiting', { waiting: false, slot: e });
+                                            }
+                                        })
+                                    });
+                                }
                             }
                         }
                     }
@@ -275,5 +303,41 @@ class Task {
             _dequeue(ctx, data);
 
         });
+    }
+}
+
+class Mixin {
+    constructor(script){
+        this.script = script;
+    }
+
+    attachTo(el) {
+        let self = this;
+        this.script(el, self.bind);
+    }
+
+    bind(trigger, el, tasks) {
+        if(typeof tasks === "string") {
+            setDataAttribute(el, 'on:' + trigger, tasks);
+        }
+        else {
+            let task = tasks['task'] || "";
+            setDataAttribute(el, 'on:' + trigger, task);
+            
+            if(tasks.hasOwnProperty('before')) {
+                task  = tasks['before'];
+                setDataAttribute(el, trigger + '-before', task);
+            }
+
+            if(tasks.hasOwnProperty('after')) {
+                task  = tasks['after'];
+                setDataAttribute(el, trigger + '-after', task);
+            }
+
+            if(tasks.hasOwnProperty('error')) {
+                task  = tasks['error'];
+                setDataAttribute(el, trigger + '-error', task);
+            }
+        }
     }
 }

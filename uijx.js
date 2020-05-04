@@ -14,31 +14,31 @@ function Uijx(id) {
     if(root){
         let e = new Engine(root);
         // register built-in triggers
-        e.registerTrigger(event);
-        e.registerTrigger(link);
-        e.registerTrigger(form);
-        e.registerTrigger(waiting);
-        e.registerTrigger(mutation);
-        e.registerTrigger(stateChanged);
-        e.registerTrigger(mounted);
+        e.trigger(event);
+        e.trigger(link);
+        e.trigger(form);
+        e.trigger(waiting);
+        e.trigger(mutation);
+        e.trigger(stateChanged);
+        e.trigger(mounted);
 
         //register built-in mutations
-        e.registerMutation(SHOW);
-        e.registerMutation(TOGGLE);
-        e.registerMutation(ADDCLASS);
-        e.registerMutation(RMCLASS);
-        e.registerMutation(TOGGLECLASS);
-        e.registerMutation(STYLE);
-        e.registerMutation(VISIBLE);
-        e.registerMutation(CLASSES);
-        e.registerMutation(ATTRIB);
-        e.registerMutation(VALUE);
-        e.registerMutation(TEXT);
-        e.registerMutation(HTML);
-        e.registerMutation(AFTER);
-        e.registerMutation(BEFORE);
-        e.registerMutation(APPEND);
-        e.registerMutation(PREPEND);
+        e.mutation(SHOW);
+        e.mutation(TOGGLE);
+        e.mutation(ADDCLASS);
+        e.mutation(RMCLASS);
+        e.mutation(TOGGLECLASS);
+        e.mutation(STYLE);
+        e.mutation(VISIBLE);
+        e.mutation(CLASSES);
+        e.mutation(ATTRIB);
+        e.mutation(VALUE);
+        e.mutation(TEXT);
+        e.mutation(HTML);
+        e.mutation(AFTER);
+        e.mutation(BEFORE);
+        e.mutation(APPEND);
+        e.mutation(PREPEND);
 
         return e;
     }
