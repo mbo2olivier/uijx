@@ -84,8 +84,19 @@ export class Engine {
 
     createMutableElement(el) {
         let mutations = this.mutations;
+        let getters = {
+            dataset: '',
+            value: '',
+            href: '',
+            id: '',
+        }
         let $ = this;
         let subject = { $el: el };
+        for (const key in getters) {
+            if (getters.hasOwnProperty(key)) {
+                subject[key] = '';
+            }
+        }
         for (const key in this.mutations) {
             if (this.mutations.hasOwnProperty(key)) {
                 subject[key] = '';
@@ -104,17 +115,8 @@ export class Engine {
                 if(prop === '$el') {
                     return s[prop];
                 }
-                if(prop === 'value') {
-                    return s.$el.value;
-                }
-                if(prop === 'id') {
-                    return s.$el.id;
-                }
-                if(prop === 'classes') {
-                    return s.$el.classname;
-                }
-                if(prop === 'href') {
-                    return s.$el.href;
+                if(getters.hasOwnProperty(prop)) {
+                    return s.$el[prop];
                 }
                 return undefined;
             }
