@@ -139,7 +139,11 @@ export class Engine {
                 if(!expr.replace(/\s/g, '').length) {
                     expr = "$data";
                 }
-                expr = tasks.length === 0 ? expr + ' = $data' : expr;
+                if(tasks.length === 0) {
+                    expr = expr.replace(/^[\s\uFEFF\xA0]+/g, '');
+
+                    expr = (0 === expr.indexOf('^'))?  expr.substring(1) : expr + ' = $data';
+                }
 
                 runner.enqueue(expr);
             }
