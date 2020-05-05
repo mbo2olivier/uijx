@@ -163,12 +163,10 @@ export class Engine {
     mount(el) {
         let $ = this;
         crawl(el, (e) => {
-            let processAnyway = false;
 
             if(!e._uijx_initiated) {
                 if(e.getAttribute("data-uijx:mixin")) {
                     let mname = e.getAttribute("data-uijx:mixin");
-                    processAnyway = true;
                     
                     let mixin = $.mixins[mname];
                     if(mixin) {
@@ -179,7 +177,7 @@ export class Engine {
                     }
                 }
 
-                if(e.id || processAnyway) {
+                if(e.id || e._uijx_binded) {
                     $.tags[toCamelCase(e.id)] = '';
                     for(let i=0; i < e.attributes.length; i++) {
                         let a = e.attributes[i];
@@ -323,12 +321,22 @@ class Mixin {
     }
 
     bind(trigger, el, tasks) {
+        let re = /^([a-zA-Z0-9\-]+)(\.[a-zA-Z\.\-]*)?$/;
+        let matches = re.exec(trigger);
+        if(!matches) {
+            throw new Error('"' + trigger + '" is not a valid trigger attribute');
+        }
+
+        let full = trigger;
+        trigger = matches[1];
+        el._uijx_binded = true;
+
         if(typeof tasks === "string") {
-            setDataAttribute(el, 'on:' + trigger, tasks);
+            setDataAttribute(el, 'on:' + full, tasks);
         }
         else {
             let task = tasks['task'] || "";
-            setDataAttribute(el, 'on:' + trigger, task);
+            setDataAttribute(el, 'on:' + full, task);
             
             if(tasks.hasOwnProperty('before')) {
                 task  = tasks['before'];

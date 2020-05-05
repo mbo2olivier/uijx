@@ -10,7 +10,7 @@ export default {
         if(info.hasModifier('self')) {
             getIn = slot.$el === event.detail.slot;
         }
-        else if(info.hasModifier(event.detail.slot.id)) {
+        else if(event.detail.slot.id && info.hasModifier(event.detail.slot.id)) {
             getIn = true;
         }
         else if(!info.containModifiers()){

@@ -43,7 +43,7 @@ In the example below, when clicking on the link UIjx will issue a request to the
 
 ``` html
 ...
-<div id="app-container">
+<div id="app-root">
     
     <a href="http://www.foo.bar" data-on:link ="-> $dom.target.html" data-link-error="console.error($data)">Load content</a>
     <div id="target"></div>
