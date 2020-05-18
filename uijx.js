@@ -1,4 +1,4 @@
-import {Engine} from './src/core';
+import {Engine, mixins, Mixin} from './src/core';
 import event from './src/triggers/event';
 import link from './src/triggers/link';
 import form from './src/triggers/form';
@@ -9,6 +9,10 @@ import mounted from './src/triggers/mounted';
 import { SHOW , TOGGLE, ADDCLASS, RMCLASS, TOGGLECLASS, VISIBLE, STYLE, CLASSES, ATTRIB, VALUE, TEXT, HTML, AFTER, BEFORE, PREPEND, APPEND } from './src/mutations';
 
 function Uijx(id) {
+    return connect(id);
+}
+
+function connect(id) {
     let root = document.getElementById(id);
     
     if(root){
@@ -45,5 +49,10 @@ function Uijx(id) {
     else
         throw new Error('cannot find element with id: ' + id);
 }
+
+Uijx.connect = connect;
+Uijx.mixin = function(name, script) {
+    mixins[name] = new Mixin(script);
+};
 
 window["Uijx"] = Uijx;

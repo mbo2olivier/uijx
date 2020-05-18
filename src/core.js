@@ -11,7 +11,6 @@ export class Engine {
     constructor(root) {
         this.root = root;
         
-        this.mixins = {};
         this.mutations = {};
         this.triggers = {};
         this.tags = {};
@@ -36,7 +35,7 @@ export class Engine {
     }
 
     mixin(name, script) {
-        this.mixins[name] = new Mixin(script);
+        mixins[name] = new Mixin(script);
 
         return this;
     }
@@ -54,7 +53,11 @@ export class Engine {
                 get(subject, prop) {
                     if(prop in subject) {
                         prop = toKebabCase(prop);
-                        return $.createMutableElement(document.getElementById(prop));
+                        let element = document.getElementById(prop);
+                        if(element)
+                            return $.createMutableElement(element);
+                        else
+                            throw new Error('cannot element with id: ' + prop);
                     }
                 }
             }),
@@ -168,7 +171,7 @@ export class Engine {
                 if(e.getAttribute("data-uijx:mixin")) {
                     let mname = e.getAttribute("data-uijx:mixin");
                     
-                    let mixin = $.mixins[mname];
+                    let mixin = mixins[mname];
                     if(mixin) {
                         mixin.attachTo(e);
                     }
@@ -260,6 +263,8 @@ export class TriggerInfo {
     }
 }
 
+export const mixins = {};
+
 class Task {
     constructor() {
         this.queue = [];
@@ -310,7 +315,7 @@ class Task {
     }
 }
 
-class Mixin {
+export class Mixin {
     constructor(script){
         this.script = script;
     }
@@ -321,6 +326,9 @@ class Mixin {
     }
 
     bind(trigger, el, tasks) {
+        if(!el) {
+            throw new Error('cannot bind "' + trigger +'" trigger to a null pointer element');
+        }
         let re = /^([a-zA-Z0-9\-]+)(\.[a-zA-Z\.\-]*)?$/;
         let matches = re.exec(trigger);
         if(!matches) {

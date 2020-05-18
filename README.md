@@ -51,7 +51,8 @@ In the example below, when clicking on the link UIjx will issue a request to the
 ...
 <script src="uijx.min.js"></script>
 <script>
-    var app = Uijx('app-root');
-    app.start();
+    Uijx
+    .connect('app-root')
+    .start();
 </script>
 ```

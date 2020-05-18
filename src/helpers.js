@@ -2,18 +2,33 @@ import 'promise-polyfill/src/polyfill';
 import 'weakmap-polyfill';
 
 export function evaluateAndReturn(expression, ctx) {
-    let f = new Function('c', 'with (c) { return ' + expression + ' }');
-    return f(ctx);
+    try{
+        let f = new Function('c', 'with (c) { return ' + expression + ' }');
+        return f(ctx);
+    }
+    catch(e) {
+        console.error(expression);
+        throw e;
+    }
 }
 
 export function evaluateAndPromise(expression, ctx) {
     let data = (new Function('c', 'with (c) { return ' + expression + ' }'))(ctx);
-    if (data instanceof Error) return Promise.reject(data);
+    if (data instanceof Error) {
+        console.error(expression);
+        return Promise.reject(data);
+    }
     return Promise.resolve(data);
 }
 
 export function evaluate(expression, ctx) {
-    (new Function('c', 'with (c) { ' + expression + ' }'))(ctx);
+    try{
+        (new Function('c', 'with (c) { ' + expression + ' }'))(ctx);
+    }
+    catch(e) {
+        console.error(expression);
+        throw e;
+    }
 }
 
 export function crawl(e, callback) {
